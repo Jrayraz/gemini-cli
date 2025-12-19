@@ -239,7 +239,7 @@ export class CodeAssistServer implements ContentGenerator {
       await this.requestGet(METHOD_WITH_PARAMS);
     return response;
   }
-  
+
   async recordConversationOffered(
     conversationOffered: ConversationOffered,
   ): Promise<void> {
