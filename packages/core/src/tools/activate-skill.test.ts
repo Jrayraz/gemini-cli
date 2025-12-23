@@ -8,6 +8,10 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ActivateSkillTool } from './activate-skill.js';
 import type { Config } from '../config/config.js';
 
+vi.mock('../utils/getFolderStructure.js', () => ({
+  getFolderStructure: vi.fn().mockResolvedValue('Mock folder structure'),
+}));
+
 describe('ActivateSkillTool', () => {
   let mockConfig: Config;
   let tool: ActivateSkillTool;
@@ -54,6 +58,8 @@ describe('ActivateSkillTool', () => {
       'Skill "test-skill" activated successfully',
     );
     expect(result.llmContent).toContain('Specialized Skill Guidance');
+    expect(result.llmContent).toContain('Available Resources');
+    expect(result.llmContent).toContain('Mock folder structure');
     expect(result.llmContent).toContain('Skill instructions content.');
     expect(result.returnDisplay).toBe('Skill "test-skill" activated.');
   });

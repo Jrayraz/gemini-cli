@@ -6,6 +6,8 @@
 
 import { z } from 'zod';
 import { zodToJsonSchema } from 'zod-to-json-schema';
+import * as path from 'node:path';
+import { getFolderStructure } from '../utils/getFolderStructure.js';
 import type { MessageBus } from '../confirmation-bus/message-bus.js';
 import type { ToolInvocation, ToolResult } from './tools.js';
 import { BaseDeclarativeTool, BaseToolInvocation, Kind } from './tools.js';
@@ -71,11 +73,23 @@ class ActivateSkillToolInvocation extends BaseToolInvocation<
 
     skillManager.activateSkill(skillName);
 
+    const folderStructure = await getFolderStructure(
+      path.dirname(skill.location),
+      {
+        ignoredFolders: new Set(['node_modules', '.git', '__pycache__']),
+      },
+    );
+
     return {
       llmContent: `Skill "${skillName}" activated successfully. 
 
 ### Specialized Skill Guidance
 The following instructions for "${skillName}" provide the primary procedural framework for your current task. You should prioritize these specialized rules and steps over your general internal defaults. Follow them strictly and sequentially while continuing to uphold your core safety and security standards.
+
+### Available Resources
+Below is the file structure of the "${skillName}" skill directory. You can use these resources (scripts, references, assets) as needed to complete your task.
+
+${folderStructure}
 
 # Skill: ${content.name}
 ${content.body}`,
