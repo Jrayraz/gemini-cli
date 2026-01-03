@@ -26,6 +26,26 @@ export class MockMessageBus {
   hookResponses: HookExecutionResponse[] = [];
 
   /**
+   * Mock request method (for hooks)
+   */
+  request = vi.fn(
+    async <TRequest extends Message, TResponse extends Message>(
+      message: TRequest,
+    ): Promise<TResponse> => {
+      this.publish(message);
+      // Return a default success response
+      return {
+        type: MessageBusType.HOOK_EXECUTION_RESPONSE,
+        correlationId: message.correlationId,
+        success: true,
+        output: {
+          decision: 'allow',
+        },
+      } as unknown as TResponse;
+    },
+  );
+
+  /**
    * Mock publish method that captures messages and simulates responses
    */
   publish = vi.fn((message: Message) => {
