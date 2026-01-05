@@ -953,6 +953,16 @@ const SETTINGS_SCHEMA = {
               'The maximum time in seconds allowed without output from the shell command. Defaults to 5 minutes.',
             showInDialog: false,
           },
+          enableShellOutputEfficiency: {
+            type: 'boolean',
+            label: 'Enable Shell Output Efficiency',
+            category: 'Tools',
+            requiresRestart: false,
+            default: true,
+            description:
+              'Enable shell output efficiency optimizations for better performance.',
+            showInDialog: false,
+          },
         },
       },
       autoAccept: {
@@ -1140,15 +1150,6 @@ const SETTINGS_SCHEMA = {
       },
     },
   },
-  useSmartEdit: {
-    type: 'boolean',
-    label: 'Use Smart Edit',
-    category: 'Advanced',
-    requiresRestart: false,
-    default: true,
-    description: 'Enable the smart-edit tool instead of the replace tool.',
-    showInDialog: false,
-  },
   useWriteTodos: {
     type: 'boolean',
     label: 'Use WriteTodos',
@@ -1176,6 +1177,16 @@ const SETTINGS_SCHEMA = {
         description: 'Disable YOLO mode, even if enabled by a flag.',
         showInDialog: true,
       },
+      enablePermanentToolApproval: {
+        type: 'boolean',
+        label: 'Allow Permanent Tool Approval',
+        category: 'Security',
+        requiresRestart: false,
+        default: false,
+        description:
+          'Enable the "Allow for all future sessions" option in tool confirmation dialogs.',
+        showInDialog: true,
+      },
       blockGitExtensions: {
         type: 'boolean',
         label: 'Blocks extensions from Git',
@@ -1201,6 +1212,48 @@ const SETTINGS_SCHEMA = {
             requiresRestart: true,
             default: false,
             description: 'Setting to track whether Folder trust is enabled.',
+            showInDialog: true,
+          },
+        },
+      },
+      environmentVariableRedaction: {
+        type: 'object',
+        label: 'Environment Variable Redaction',
+        category: 'Security',
+        requiresRestart: false,
+        default: {},
+        description: 'Settings for environment variable redaction.',
+        showInDialog: false,
+        properties: {
+          allowed: {
+            type: 'array',
+            label: 'Allowed Environment Variables',
+            category: 'Security',
+            requiresRestart: true,
+            default: [] as string[],
+            description:
+              'Environment variables to always allow (bypass redaction).',
+            showInDialog: false,
+            items: { type: 'string' },
+          },
+          blocked: {
+            type: 'array',
+            label: 'Blocked Environment Variables',
+            category: 'Security',
+            requiresRestart: true,
+            default: [] as string[],
+            description: 'Environment variables to always redact.',
+            showInDialog: false,
+            items: { type: 'string' },
+          },
+          enabled: {
+            type: 'boolean',
+            label: 'Enable Environment Variable Redaction',
+            category: 'Security',
+            requiresRestart: true,
+            default: false,
+            description:
+              'Enable redaction of environment variables that may contain secrets.',
             showInDialog: true,
           },
         },
@@ -1313,7 +1366,8 @@ const SETTINGS_SCHEMA = {
         category: 'Experimental',
         requiresRestart: true,
         default: false,
-        description: 'Enable local and remote subagents.',
+        description:
+          'Enable local and remote subagents. Warning: Experimental feature, uses YOLO mode for subagents',
         showInDialog: false,
       },
       extensionManagement: {
@@ -1335,15 +1389,6 @@ const SETTINGS_SCHEMA = {
           'Enables extension loading/unloading within the CLI session.',
         showInDialog: false,
       },
-      isModelAvailabilityServiceEnabled: {
-        type: 'boolean',
-        label: 'Enable Model Availability Service',
-        category: 'Experimental',
-        requiresRestart: true,
-        default: false,
-        description: 'Enable model routing using new availability service.',
-        showInDialog: false,
-      },
       jitContext: {
         type: 'boolean',
         label: 'JIT Context Loading',
@@ -1351,6 +1396,15 @@ const SETTINGS_SCHEMA = {
         requiresRestart: true,
         default: false,
         description: 'Enable Just-In-Time (JIT) context loading.',
+        showInDialog: false,
+      },
+      skills: {
+        type: 'boolean',
+        label: 'Agent Skills',
+        category: 'Experimental',
+        requiresRestart: true,
+        default: false,
+        description: 'Enable Agent Skills (experimental).',
         showInDialog: false,
       },
       codebaseInvestigatorSettings: {
@@ -1413,6 +1467,26 @@ const SETTINGS_SCHEMA = {
           },
         },
       },
+      introspectionAgentSettings: {
+        type: 'object',
+        label: 'Introspection Agent Settings',
+        category: 'Experimental',
+        requiresRestart: true,
+        default: {},
+        description: 'Configuration for Introspection Agent.',
+        showInDialog: false,
+        properties: {
+          enabled: {
+            type: 'boolean',
+            label: 'Enable Introspection Agent',
+            category: 'Experimental',
+            requiresRestart: true,
+            default: false,
+            description: 'Enable the Introspection Agent.',
+            showInDialog: true,
+          },
+        },
+      },
     },
   },
 
@@ -1444,6 +1518,29 @@ const SETTINGS_SCHEMA = {
         default: [] as string[],
         description:
           'List of workspaces for which the migration nudge has been shown.',
+        showInDialog: false,
+        items: { type: 'string' },
+        mergeStrategy: MergeStrategy.UNION,
+      },
+    },
+  },
+
+  skills: {
+    type: 'object',
+    label: 'Skills',
+    category: 'Advanced',
+    requiresRestart: true,
+    default: {},
+    description: 'Settings for agent skills.',
+    showInDialog: true,
+    properties: {
+      disabled: {
+        type: 'array',
+        label: 'Disabled Skills',
+        category: 'Advanced',
+        requiresRestart: true,
+        default: [] as string[],
+        description: 'List of disabled skills.',
         showInDialog: false,
         items: { type: 'string' },
         mergeStrategy: MergeStrategy.UNION,
@@ -1652,7 +1749,8 @@ export const SETTINGS_SCHEMA_DEFINITIONS: Record<
       },
       url: {
         type: 'string',
-        description: 'SSE transport URL.',
+        description:
+          'URL for SSE or HTTP transport. Use with "type" field to specify transport type.',
       },
       httpUrl: {
         type: 'string',
@@ -1666,6 +1764,12 @@ export const SETTINGS_SCHEMA_DEFINITIONS: Record<
       tcp: {
         type: 'string',
         description: 'TCP address for websocket transport.',
+      },
+      type: {
+        type: 'string',
+        description:
+          'Transport type. Use "stdio" for local command, "sse" for Server-Sent Events, or "http" for Streamable HTTP.',
+        enum: ['stdio', 'sse', 'http'],
       },
       timeout: {
         type: 'number',
@@ -1911,6 +2015,10 @@ export const SETTINGS_SCHEMA_DEFINITIONS: Record<
             type: 'object',
             description: 'Individual hook configuration.',
             properties: {
+              name: {
+                type: 'string',
+                description: 'Unique identifier for the hook.',
+              },
               type: {
                 type: 'string',
                 description:
@@ -1920,6 +2028,10 @@ export const SETTINGS_SCHEMA_DEFINITIONS: Record<
                 type: 'string',
                 description:
                   'Shell command to execute. Receives JSON input via stdin and returns JSON output via stdout.',
+              },
+              description: {
+                type: 'string',
+                description: 'A description of the hook.',
               },
               timeout: {
                 type: 'number',
@@ -1950,9 +2062,3 @@ type InferSettings<T extends SettingsSchema> = {
 };
 
 export type Settings = InferSettings<SettingsSchemaType>;
-
-export interface FooterSettings {
-  hideCWD?: boolean;
-  hideSandboxStatus?: boolean;
-  hideModelInfo?: boolean;
-}
