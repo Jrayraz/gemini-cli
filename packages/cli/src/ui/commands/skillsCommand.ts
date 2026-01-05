@@ -12,6 +12,8 @@ import {
 } from './types.js';
 import { MessageType, type HistoryItemSkillsList } from '../types.js';
 import { SettingScope } from '../../config/settings.js';
+import { enableSkill, disableSkill } from '../../utils/skillSettings.js';
+import { formatSkillActionFeedbackPlain } from '../../utils/skillUtils.js';
 
 async function listAction(
   context: CommandContext,
@@ -82,29 +84,18 @@ async function disableAction(
     return;
   }
 
-  const currentDisabled =
-    context.services.settings.merged.skills?.disabled ?? [];
-  if (currentDisabled.includes(skillName)) {
-    context.ui.addItem(
-      {
-        type: MessageType.INFO,
-        text: `Skill "${skillName}" is already disabled.`,
-      },
-      Date.now(),
-    );
-    return;
-  }
-
-  const newDisabled = [...currentDisabled, skillName];
   const scope = context.services.settings.workspace.path
     ? SettingScope.Workspace
     : SettingScope.User;
 
-  context.services.settings.setValue(scope, 'skills.disabled', newDisabled);
+  const result = disableSkill(context.services.settings, skillName, scope);
+
   context.ui.addItem(
     {
       type: MessageType.INFO,
-      text: `Skill "${skillName}" disabled in ${scope} settings. Restart required to take effect.`,
+      text: formatSkillActionFeedbackPlain(result, skillName, {
+        includeRestartMessage: result.status === 'success',
+      }),
     },
     Date.now(),
   );
@@ -126,29 +117,14 @@ async function enableAction(
     return;
   }
 
-  const currentDisabled =
-    context.services.settings.merged.skills?.disabled ?? [];
-  if (!currentDisabled.includes(skillName)) {
-    context.ui.addItem(
-      {
-        type: MessageType.INFO,
-        text: `Skill "${skillName}" is not disabled.`,
-      },
-      Date.now(),
-    );
-    return;
-  }
+  const result = enableSkill(context.services.settings, skillName);
 
-  const newDisabled = currentDisabled.filter((name) => name !== skillName);
-  const scope = context.services.settings.workspace.path
-    ? SettingScope.Workspace
-    : SettingScope.User;
-
-  context.services.settings.setValue(scope, 'skills.disabled', newDisabled);
   context.ui.addItem(
     {
       type: MessageType.INFO,
-      text: `Skill "${skillName}" enabled in ${scope} settings. Restart required to take effect.`,
+      text: formatSkillActionFeedbackPlain(result, skillName, {
+        includeRestartMessage: result.status === 'success',
+      }),
     },
     Date.now(),
   );

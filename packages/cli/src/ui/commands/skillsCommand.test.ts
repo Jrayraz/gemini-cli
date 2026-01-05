@@ -12,6 +12,16 @@ import type { CommandContext } from './types.js';
 import type { Config } from '@google/gemini-cli-core';
 import { SettingScope, type LoadedSettings } from '../../config/settings.js';
 
+vi.mock('chalk', () => ({
+  default: {
+    bold: vi.fn((s) => s),
+    dim: vi.fn((s) => s),
+    yellow: vi.fn((s) => s),
+    green: vi.fn((s) => s),
+    red: vi.fn((s) => s),
+  },
+}));
+
 describe('skillsCommand', () => {
   let context: CommandContext;
 
@@ -44,8 +54,19 @@ describe('skillsCommand', () => {
         } as unknown as Config,
         settings: {
           merged: { skills: { disabled: [] } },
-          workspace: { path: '/workspace' },
+          workspace: {
+            path: '/workspace',
+            settings: { skills: { disabled: [] } },
+          },
+          user: { settings: { skills: { disabled: [] } } },
           setValue: vi.fn(),
+          forScope: vi.fn().mockImplementation((scope) => {
+            if (scope === SettingScope.Workspace)
+              return context.services.settings.workspace;
+            if (scope === SettingScope.User)
+              return context.services.settings.user;
+            return { settings: {} };
+          }),
         } as unknown as LoadedSettings,
       },
     });
@@ -123,11 +144,15 @@ describe('skillsCommand', () => {
   describe('disable/enable', () => {
     beforeEach(() => {
       context.services.settings.merged.skills = { disabled: [] };
+      context.services.settings.workspace.settings = {
+        skills: { disabled: [] },
+      };
+      context.services.settings.workspace.path = '/workspace';
+      context.services.settings.user.settings = { skills: { disabled: [] } };
+      context.services.settings.user.path = '/user/settings.json';
       (
         context.services.settings as unknown as { workspace: { path: string } }
-      ).workspace = {
-        path: '/workspace',
-      };
+      ).workspace.path = '/workspace';
     });
 
     it('should disable a skill', async () => {
@@ -144,7 +169,34 @@ describe('skillsCommand', () => {
       expect(context.ui.addItem).toHaveBeenCalledWith(
         expect.objectContaining({
           type: MessageType.INFO,
-          text: expect.stringContaining('Skill "skill1" disabled'),
+          text: expect.stringContaining(
+            'disabled by adding it to the disabled list in project settings',
+          ),
+        }),
+        expect.any(Number),
+      );
+    });
+
+    it('should report both scopes when disabling and already disabled in another', async () => {
+      const disableCmd = skillsCommand.subCommands!.find(
+        (s) => s.name === 'disable',
+      )!;
+      // Already disabled in User settings
+      context.services.settings.user.settings.skills = { disabled: ['skill1'] };
+
+      await disableCmd.action!(context, 'skill1');
+
+      expect(context.services.settings.setValue).toHaveBeenCalledWith(
+        SettingScope.Workspace,
+        'skills.disabled',
+        ['skill1'],
+      );
+      expect(context.ui.addItem).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: MessageType.INFO,
+          text: expect.stringContaining(
+            'is now disabled in both project (/workspace) and user (/user/settings.json) settings',
+          ),
         }),
         expect.any(Number),
       );
@@ -154,6 +206,9 @@ describe('skillsCommand', () => {
       const enableCmd = skillsCommand.subCommands!.find(
         (s) => s.name === 'enable',
       )!;
+      context.services.settings.workspace.settings.skills = {
+        disabled: ['skill1'],
+      };
       context.services.settings.merged.skills = { disabled: ['skill1'] };
       await enableCmd.action!(context, 'skill1');
 
@@ -165,7 +220,43 @@ describe('skillsCommand', () => {
       expect(context.ui.addItem).toHaveBeenCalledWith(
         expect.objectContaining({
           type: MessageType.INFO,
-          text: expect.stringContaining('Skill "skill1" enabled'),
+          text: expect.stringContaining(
+            'enabled by removing it from the disabled list in project settings (/workspace)',
+          ),
+        }),
+        expect.any(Number),
+      );
+    });
+
+    it('should enable a skill across multiple scopes', async () => {
+      const enableCmd = skillsCommand.subCommands!.find(
+        (s) => s.name === 'enable',
+      )!;
+      context.services.settings.user.settings.skills = {
+        disabled: ['skill1'],
+      };
+      context.services.settings.workspace.settings.skills = {
+        disabled: ['skill1'],
+      };
+      context.services.settings.merged.skills = { disabled: ['skill1'] };
+      await enableCmd.action!(context, 'skill1');
+
+      expect(context.services.settings.setValue).toHaveBeenCalledWith(
+        SettingScope.User,
+        'skills.disabled',
+        [],
+      );
+      expect(context.services.settings.setValue).toHaveBeenCalledWith(
+        SettingScope.Workspace,
+        'skills.disabled',
+        [],
+      );
+      expect(context.ui.addItem).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: MessageType.INFO,
+          text: expect.stringContaining(
+            'enabled by removing it from the disabled list in project (/workspace) and user (/user/settings.json) settings',
+          ),
         }),
         expect.any(Number),
       );
