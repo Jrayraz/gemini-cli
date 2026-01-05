@@ -684,6 +684,20 @@ their corresponding top-level category object in your `settings.json` file.
   - **Default:** `1000`
   - **Requires restart:** Yes
 
+- **`tools.enableMessageBusIntegration`** (boolean):
+  - **Description:** Enable policy-based tool confirmation via message bus
+    integration. When enabled, tools automatically respect policy engine
+    decisions (ALLOW/DENY/ASK_USER) without requiring individual tool
+    implementations.
+  - **Default:** `true`
+  - **Requires restart:** Yes
+
+- **`tools.disableLLMCorrection`** (boolean):
+  - **Description:** Disable LLM-based error correction for edit tools. When
+    enabled, tools will fail immediately if exact string matches are not found,
+    instead of attempting to self-correct.
+  - **Default:** `false`
+
 - **`tools.enableHooks`** (boolean):
   - **Description:** Enable the hooks system for intercepting and customizing
     Gemini CLI behavior. When enabled, hooks configured in settings will execute
