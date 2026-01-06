@@ -21,7 +21,7 @@ type SovereignApp struct {
 }
 
 // NewSovereignApp initializes a new SovereignApp instance
-func NewSovereignApp() (*SovereignApp, error) {
+func NewSovereignApp(customDBPath string) (*SovereignApp, error) {
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
 		return nil, fmt.Errorf("failed to get user home directory: %w", err)
@@ -33,6 +33,10 @@ func NewSovereignApp() (*SovereignApp, error) {
 	}
 
 	dbPath := filepath.Join(appDir, dbFileName)
+	if customDBPath != "" {
+		dbPath = customDBPath
+		log.Printf("Using custom database path: %s", dbPath)
+	}
 
 	app := &SovereignApp{
 		AppDir: appDir,
@@ -64,6 +68,7 @@ func (app *SovereignApp) Init() error {
 // initDB creates tables and populates initial data if necessary
 func (app *SovereignApp) initDB() error {
 	tables := []string{
+		"CREATE TABLE IF NOT EXISTS schema_versions (id INTEGER PRIMARY KEY AUTOINCREMENT, version INTEGER UNIQUE, applied_at DATETIME DEFAULT CURRENT_TIMESTAMP)",
 		"CREATE TABLE IF NOT EXISTS ch (id INTEGER PRIMARY KEY AUTOINCREMENT, timestamp DATETIME DEFAULT CURRENT_TIMESTAMP, session_id TEXT, type TEXT, content TEXT, metadata TEXT)",
 		"CREATE TABLE IF NOT EXISTS vs (id INTEGER PRIMARY KEY AUTOINCREMENT, timestamp DATETIME DEFAULT CURRENT_TIMESTAMP, component TEXT, version TEXT, changelog TEXT)",
 		"CREATE TABLE IF NOT EXISTS user_context (id INTEGER PRIMARY KEY AUTOINCREMENT, timestamp DATETIME DEFAULT CURRENT_TIMESTAMP, category TEXT, key TEXT, value TEXT, context TEXT)",
@@ -79,6 +84,10 @@ func (app *SovereignApp) initDB() error {
 		if _, err := app.DB.Exec(query); err != nil {
 			return fmt.Errorf("error creating table: %w", err)
 		}
+	}
+
+	if err := app.applyMigrations(); err != nil {
+		return fmt.Errorf("failed to apply database migrations: %w", err)
 	}
 
 	// Populate Prime Directives from embedded file

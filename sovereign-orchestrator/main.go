@@ -2,6 +2,7 @@ package main
 
 import (
 	"embed"
+	"flag" // Import the flag package
 	"log"
 	"os"
 
@@ -19,7 +20,11 @@ const (
 )
 
 func main() {
-	app, err := NewSovereignApp()
+	var customDBPath string
+	flag.StringVar(&customDBPath, "db-path", "", "Path to an existing sovereign_memory.db file")
+	flag.Parse()
+
+	app, err := NewSovereignApp(customDBPath) // Pass customDBPath to NewSovereignApp
 	if err != nil {
 		log.Fatalf("Failed to create SovereignApp: %v", err)
 	}

@@ -3,10 +3,10 @@
     *   Created `sovereign-orchestrator` Go module in `/home/jrrosenbum/Development/git/gemini-cli/`.
     *   Created `main.go` and `sovereign_app.go` placeholders.
     *   Created initial `To-Do.md`, `COMPLETED.md`, `Process_List.md` files.
-2. [pending] Embed Core Configuration and External Runtime Bundles:
-    *   Create `core_directives.txt` file (placeholder for now).
-    *   Create `scripts` directory for Python scripts.
-    *   Place `sovereign-system.tar.gz` (placeholder).
+2. [completed] Embed Core Configuration and External Runtime Bundles:
+    *   Created `core_directives.txt` file (placeholder for now).
+    *   Created `scripts` directory for Python scripts.
+    *   Placed `sovereign-system.tar.gz` (placeholder).
 3. [pending] Implement Robust SQLite DB Manager (Go) with Evolution & Migration:
     *   Add schema migration capabilities to `initDB` in `sovereign_app.go`.
     *   Implement an option/flag for using an existing `sovereign_memory.db`.
