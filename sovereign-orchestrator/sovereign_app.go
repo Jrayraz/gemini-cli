@@ -655,3 +655,16 @@ func (app *SovereignApp) isUserAttached() bool {
 	}
 	return strings.TrimSpace(string(output)) != ""
 }
+
+// getSystemContext reads the content of a predefined context file.
+func (app *SovereignApp) getSystemContext() string {
+	// CONTEXT_FILE should eventually be configurable or dynamically generated
+	contextFilePath := "/home/sovereign/current_context.txt" // Replicates original Python path
+
+	content, err := os.ReadFile(contextFilePath)
+	if err != nil {
+		log.Printf("Warning: Could not read system context file %s: %v", contextFilePath, err)
+		return "System Context: Unavailable."
+	}
+	return string(content)
+}
