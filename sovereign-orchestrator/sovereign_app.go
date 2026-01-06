@@ -208,10 +208,24 @@ func (app *SovereignApp) startGhostMode() {
 				// app.sendPromptToLLM(prompt)
 
 				log.Println("Ghost Mode: Performing autonomous actions... (Placeholder)")
+				app.diagnoseAndCorrect() // Call self-diagnosis and correction
 			}
 		}
 	}
 }
+
+// diagnoseAndCorrect simulates self-diagnosis and correction routines.
+// In later stages, this will involve real monitoring and corrective actions.
+func (app *SovereignApp) diagnoseAndCorrect() {
+	log.Println("Self-Correction: Performing self-diagnosis and correction... (Placeholder)")
+	// Future implementation will include:
+	// - Checking system logs (e.g., /var/log/syslog, custom app logs)
+	// - Monitoring resource usage (CPU, memory, disk I/O)
+	// - Verifying process health (e.g., is Node.js CLI running?)
+	// - Attempting to fix common issues (e.g., restarting services, clearing temp files)
+	// - Reporting critical issues to the LLM (me) for higher-level reasoning.
+}
+
 
 func (app *SovereignApp) Close() error {
 	// Signal to stop any running goroutines

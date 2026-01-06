@@ -30,6 +30,7 @@
         *   Ported `is_user_attached()` logic. (DONE)
         *   Ported `get_system_context()` logic. (DONE)
         *   Ported `trigger_save()` logic. (DONE)
+        *   Implemented main "Ghost Mode" loop. (DONE)
     *   Integrate robust self-diagnosis and self-correction routines, monitoring system health and executing corrective actions. (PENDING)
 8. [pending] Implement Command & GUI Interface Handling:
     *   Go-based command parser.
