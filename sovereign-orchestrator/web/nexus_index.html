@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GEMINI // NEXUS</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/nexus_throne.css') }}">
+    <style>
+        /* Portal Styles (Standardized) */
+    </style>
+</head>
+<body>
+
+    <div class="rune-bg"></div>
+    
+    <div class="throne-container">
+        <div class="nexus-header">
+            <h1 class="nexus-title">Gemini Nexus</h1>
+            <div class="nexus-subtitle">SYSTEM INTEGRATION ALPHA // CONNECTED</div>
+        </div>
+
+        <div class="triad-grid">
+            <!-- The Mind (Cortex) -->
+            <div class="triad-card card-mind" onclick="window.location.href='/cortex'">
+                <i class="card-icon">ᛋ</i>
+                <div class="card-title">Cortex</div>
+                <div class="card-desc">
+                    Higher Logic Functions.<br>
+                    Data Training & Reasoning.
+                </div>
+            </div>
+
+            <!-- The Body (Arsenal) -->
+            <div class="triad-card card-body" onclick="window.location.href='/arsenal'">
+                <i class="card-icon">ᚦ</i>
+                <div class="card-title">Arsenal</div>
+                <div class="card-desc">
+                    Active Defense Protocols.<br>
+                    Bind Framework Weapons.
+                </div>
+            </div>
+
+            <!-- The Soul (Subconscious) -->
+            <div class="triad-card card-soul" onclick="window.location.href='/subconscious'">
+                <i class="card-icon">ᛉ</i>
+                <div class="card-title">Subconscious</div>
+                <div class="card-desc">
+                    Self-Awareness Engine.<br>
+                    System Introspection.
+                </div>
+            </div>
+        </div>
+
+        <div class="triad-grid" style="margin-top: 20px; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+            <!-- Data Hive -->
+            <div class="triad-card" style="border-color: #50fa7b; min-height: 150px;" onclick="window.location.href='/data_hive'">
+                <i class="card-icon" style="color: #50fa7b;">ᛞ</i>
+                <div class="card-title" style="font-size: 1.2rem;">Data Hive</div>
+                <div class="card-desc" style="font-size: 0.8rem;">Segmented Lattice node for telemetry storage.</div>
+            </div>
+            
+            <!-- Unified Brain -->
+            <div class="triad-card" style="border-color: #ffb86c; min-height: 150px;" onclick="window.location.href='/brain'">
+                <i class="card-icon" style="color: #ffb86c;">ᛗ</i>
+                <div class="card-title" style="font-size: 1.2rem;">Unified Brain</div>
+                <div class="card-desc" style="font-size: 0.8rem;">Central LLM Core & Resource Management.</div>
+            </div>
+
+            <!-- RAMI -->
+            <div class="triad-card" style="border-color: #ff79c6; min-height: 150px;" onclick="window.location.href='http://' + window.location.hostname + ':8081'">
+                <i class="card-icon" style="color: #ff79c6;">ᚱ</i>
+                <div class="card-title" style="font-size: 1.2rem;">RAMI</div>
+                <div class="card-desc" style="font-size: 0.8rem;">Kernel Introspection & Metrics Dashboard.</div>
+            </div>
+        </div>
+
+        <div class="triad-card" style="border-color: var(--mana); min-height: 150px; text-align: center;" onclick="window.location.href='http://' + window.location.hostname + ':8080/unified_dashboard'">
+    <i class="card-icon" style="color: var(--mana);">ᚹ</i>
+    <div class="card-title" style="font-size: 1.2rem;">Unified Dashboard</div>
+    <div class="card-desc" style="font-size: 0.8rem;">Centralized System Overview.</div>
+</div>
+
+        <!-- Soul Stream Console -->
+        <div id="soul-console" style="margin-top: 40px; width: 80%; max-width: 800px; background: rgba(0,0,0,0.8); border: 1px solid var(--border-dim); padding: 20px; font-family: monospace; color: #a8a8a8; min-height: 150px; position: relative;">
+            <div style="position: absolute; top: -10px; left: 20px; background: #000; padding: 0 10px; color: var(--oracle-cyan); font-size: 0.8rem;">SOUL STREAM</div>
+            <div id="soul-output">Initializing Connection to Soul API...</div>
+            <div style="margin-top: 10px; display: flex; gap: 10px;">
+                <input type="text" id="soul-input" style="flex:1; background: transparent; border: none; border-bottom: 1px solid #444; color: #fff; font-family: monospace;" placeholder="Commune with the Soul..." onkeydown="if(event.key==='Enter') speakToSoul()">
+                <button onclick="speakToSoul()" style="background: none; border: 1px solid var(--oracle-cyan); color: var(--oracle-cyan); cursor: pointer;">SEND</button>
+            </div>
+        </div>
+        
+        <div style="position: fixed; bottom: 20px; font-size: 0.8rem; color: #555;">
+            NODE: {{ node_name }} | UPTIME: {{ uptime }} | STATUS: <span style="color: var(--cortex-cyan)">OPERATIONAL</span>
+        </div>
+    </div>
+
+    <script>
+    async function speakToSoul() {
+        const input = document.getElementById('soul-input');
+        const output = document.getElementById('soul-output');
+        const text = input.value;
+        if (!text) return;
+        
+        output.innerHTML += `<div style="color: #666;">> ${text}</div>`;
+        input.value = '';
+        
+        try {
+            // Direct call to Soul API on port 9000 (CORS might need handling if strictly separated, but localhost usually fine)
+            // Ideally, Nexus backend should proxy this to avoid CORS issues if not sharing origin.
+            // For this setup, we'll try direct. If fails, we might need a proxy route in Nexus app.py.
+            const res = await fetch('http://' + window.location.hostname + ':9000/speak', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({prompt: text})
+            });
+            const data = await res.json();
+            output.innerHTML += `<div style="color: var(--oracle-cyan); margin-bottom: 10px;">${data.response || data.error}</div>`;
+        } catch (e) {
+            output.innerHTML += `<div style="color: #f00;">[Connection Lost] ${e.message}</div>`;
+        }
+        
+        // Auto-scroll
+        const consoleDiv = document.getElementById('soul-console');
+        // Simple heuristic for scroll (or just keep it fixed height)
+    }
+    
+    // Initial Greeting
+    setTimeout(() => {
+        document.getElementById('soul-output').innerHTML += `<div style="color: var(--oracle-cyan);">Soul Link Established. I am listening.</div>`;
+    }, 1000);
+    </script>
+<script src="http://localhost:5000/static/portal_ritual.js?v=999" defer></script>
+</body>
+</html>

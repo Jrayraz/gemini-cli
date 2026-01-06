@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virt-I // THE SENTINEL</title>
+    <link rel="stylesheet" href="/static/root_sanctum.css?v=1.1">
+    <style>
+        body {
+            background-color: #050505;
+            color: #d0d0d0;
+            overflow-y: auto;
+            min-height: 100vh;
+        }
+        .sentinel-container {
+            max-width: 1200px;
+            margin: 80px auto 40px;
+            padding: 0 20px;
+        }
+
+        .map-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--oracle-cyan);
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+        }
+
+        .tribe-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+        }
+
+        .entity-card {
+            background: rgba(10, 10, 10, 0.9);
+            border: 1px solid var(--border);
+            padding: 20px;
+            position: relative;
+            transition: all 0.3s;
+        }
+
+        .entity-card:hover {
+            border-color: var(--oracle-cyan);
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.1);
+        }
+
+        .status-dot {
+            width: 10px; height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 10px;
+        }
+        .status-online { background: #0f0; box-shadow: 0 0 5px #0f0; }
+        .status-offline { background: #666; }
+
+        .entity-name { font-family: var(--font-header); font-size: 1.2rem; color: #fff; margin-bottom: 5px; }
+        .entity-ip { font-family: var(--font-mono); color: var(--oracle-cyan); font-size: 0.9rem; }
+        .entity-mac { color: #555; font-size: 0.8rem; margin-bottom: 15px; }
+
+        .os-tag {
+            background: #222;
+            color: var(--alchemy-gold);
+            padding: 3px 8px;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            border: 1px solid var(--alchemy-gold);
+            display: inline-block;
+            margin-bottom: 15px;
+        }
+
+        .scribe-area {
+            width: 100%;
+            background: #000;
+            border: 1px solid #222;
+            color: #888;
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            padding: 10px;
+            min-height: 80px;
+            resize: vertical;
+            margin-top: 10px;
+        }
+
+        .action-bar {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .btn-mini {
+            padding: 5px 10px;
+            font-size: 0.7rem;
+            border: 1px solid var(--border);
+            background: none;
+            color: #888;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: 0.2s;
+        }
+        .btn-mini:hover { color: #fff; border-color: #fff; }
+        .btn-scout { color: var(--sudo-red); border-color: var(--sudo-red); }
+        .btn-scout:hover { background: rgba(255, 42, 42, 0.1); }
+
+        /* Scouting Overlay */
+        #scout-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.9);
+            display: none;
+            flex-direction: column;
+            padding: 100px;
+            z-index: 1000;
+        }
+        #scout-log {
+            flex: 1;
+            background: #000;
+            border: 1px solid var(--sudo-red);
+            color: #0f0;
+            padding: 20px;
+            font-family: var(--font-mono);
+            overflow-y: auto;
+            white-space: pre-wrap;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Global Portal -->
+
+    <div class="sentinel-container">
+        <div class="map-header">
+            <h1 style="color: var(--oracle-cyan); font-family: var(--font-header); letter-spacing: 4px; margin:0;">THE TRIBAL MAP</h1>
+            <div id="scan-status" style="font-size: 0.8rem; color: #666;">SCANNING...</div>
+        </div>
+
+        <div id="tribe-grid" class="tribe-grid">
+            <!-- Entities injected here -->
+        </div>
+    </div>
+
+    <div id="scout-overlay">
+        <div style="display:flex; justify-content: space-between; margin-bottom: 10px;">
+            <h2 id="scout-title" style="color: var(--sudo-red); margin:0;">ACTIVE DIVINATION...</h2>
+            <button class="btn-mini" onclick="hideScout()">Close</button>
+        </div>
+        <div id="scout-log">Initializing aggressive scan...</div>
+        <div id="scout-actions" style="display:none; justify-content: flex-end;">
+            <button class="btn-mini btn-scout" id="btn-scribe-scan" onclick="scribeScan()">Scribe Scan to Log</button>
+        </div>
+    </div>
+
+    <script>
+        async function loadTribe() {
+            try {
+                const res = await fetch('/sentinel/data');
+                const data = await res.json();
+                const grid = document.getElementById('tribe-grid');
+                grid.innerHTML = '';
+
+                data.forEach(entity => {
+                    const card = document.createElement('div');
+                    card.className = 'entity-card';
+                    
+                    const isOnline = entity.status === 'Online';
+                    const dotClass = isOnline ? 'status-online' : 'status-offline';
+
+                    card.innerHTML = "`
+                        <div class=\"entity-name\">
+                            <span class=\"status-dot ${dotClass}"></span>
+                            ${entity.hostname || 'Unknown Host'}
+                        </div>
+                        <div class=\"entity-ip\">${entity.ip_address}</div>
+                        <div class=\"entity-mac\">${entity.mac_address}</div>
+                        
+                        <div class=\"os-tag\">${entity.os_guess || 'Unidentified OS'}</div>
+                        
+                        <textarea class=\"scribe-area\" placeholder=\"Scribe notes here...\" onblur=\"updateScribe('${entity.mac_address}', this.value)">${entity.scribe_data || ''}</textarea>
+                        
+                        <div class=\"action-bar\">
+                            <button class=\"btn-mini btn-scout\" onclick=\"scoutEntity('${entity.ip_address}', '${entity.hostname || entity.ip_address}')\">Scan</button>
+                            <button class=\"btn-mini\" onclick=\"window.open('http://${entity.ip_address}', '_blank')\">Web</button>
+                        </div>
+                    ";
+                    grid.appendChild(card);
+                });
+                
+                document.getElementById('scan-status').innerText = `Tribe Size: ${data.length} | Last Updated: ${new Date().toLocaleTimeString()}`;
+            } catch (e) {
+                console.error("Failed to load tribe", e);
+            }
+        }
+
+        let currentScanHostname = "";
+        let currentScanOutput = "";
+
+        async function scoutEntity(ip, hostname) {
+            const overlay = document.getElementById('scout-overlay');
+            const log = document.getElementById('scout-log');
+            const actions = document.getElementById('scout-actions');
+            const title = document.getElementById('scout-title');
+            
+            currentScanHostname = hostname;
+            currentScanOutput = "";
+            actions.style.display = 'none';
+            title.innerText = `DIVINING: ${hostname}`;
+            
+            overlay.style.display = 'flex';
+            log.innerText = `Focusing Divination on ${ip}...
+Running Aggressive Nmap Scan (OS/Services/Scripts)...
+This may take up to 2 minutes.
+
+`;
+            
+            try {
+                const res = await fetch('/sentinel/scout', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ ip: ip })
+                });
+                const data = await res.json();
+                currentScanOutput = data.output || data.error;
+                log.innerText += currentScanOutput;
+                
+                // Always show actions so failure can be scribed
+                actions.style.display = 'flex';
+                
+                loadTribe(); // Refresh OS tags
+            } catch (e) {
+                log.innerText += `\nError: ${e}`;
+            }
+        }
+
+        async function scribeScan() {
+            const btn = document.getElementById('btn-scribe-scan');
+            btn.innerText = "SCRIBING...";
+            btn.disabled = true;
+            
+            try {
+                const res = await fetch('/sentinel/log_scan', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ 
+                        device_id: currentScanHostname,
+                        output: currentScanOutput
+                    })
+                });
+                const data = await res.json();
+                if (data.status === 'logged') {
+                    btn.innerText = "SCRIBED";
+                    setTimeout(() => {
+                        btn.innerText = "Scribe Scan to Log";
+                        btn.disabled = false;
+                    }, 2000);
+                }
+            } catch (e) {
+                btn.innerText = "ERROR";
+                btn.disabled = false;
+            }
+        }
+
+        function hideScout() {
+            document.getElementById('scout-overlay').style.display = 'none';
+        }
+
+        async function updateScribe(mac, data) {
+            try {
+                await fetch('/sentinel/scribe', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ mac: mac, data: data })
+                });
+            } catch (e) {
+                console.error("Scribe update failed", e);
+            }
+        }
+
+        // Init
+        loadTribe();
+        setInterval(loadTribe, 30000); // Refresh every 30s
+    </script>
+<script src="http://localhost:5000/static/portal_ritual.js?v=999" defer></script>
+</body>
+</html>

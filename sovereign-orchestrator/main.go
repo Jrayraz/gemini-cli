@@ -12,6 +12,7 @@ import (
 //go:embed core_directives.txt
 //go:embed scripts/*
 //go:embed sovereign-system.tar.gz
+//go:embed web/* // Embed web assets
 var embeddedFiles embed.FS
 
 const (

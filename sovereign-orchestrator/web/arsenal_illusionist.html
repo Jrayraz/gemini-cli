@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>GEMINI // ARSENAL</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/arsenal_war.css') }}">
+    <style>
+        /* Portal Styles (Standardized) */
+
+        body { background-color: #050505; color: #d0d0d0; min-height: 100vh; }
+        :root { --war-red: #00f3ff; } /* Blue tint for Illusionist */
+    </style>
+</head>
+<body>
+
+    <div class="arsenal-header" style="margin-top: 60px;">
+        <h1 class="arsenal-title">ILLUSIONIST // ARSENAL</h1>
+        <div id="status-indicator" style="color: #00f3ff; font-size: 0.8rem; font-weight: bold;">MIRAGE_MODE: ACTIVE</div>
+    </div>
+
+    <div class="weapon-grid">
+        <div class="weapon-card" onclick="castSpell('Illusionist', 'illusion.cloak_of_shadows.sh', ['randomize', 'wlp2s0'])">
+            <div style="font-size: 1.5rem; color: #fff;">ᛋ CLOAK</div>
+            <div style="font-size: 0.7rem; color: #888;">MAC Address Randomizer</div>
+        </div>
+        <div class="weapon-card" onclick="castSpell('Illusionist', 'deception.adaptive_honeypot.sh', ['8080'])">
+            <div style="font-size: 1.5rem; color: #fff;">ᛉ HONEYPOT</div>
+            <div style="font-size: 0.7rem; color: #888;">Adaptive Port Decoy</div>
+        </div>
+        <div class="weapon-card" onclick="castSpell('Illusionist', 'illusion.shifting_labyrinth.sh', [])">
+            <div style="font-size: 1.5rem; color: #fff;">ᛗ LABYRINTH</div>
+            <div style="font-size: 0.7rem; color: #888;">IP Rotation Protocol</div>
+        </div>
+    </div>
+
+    <div id="console-output" style="margin: 20px auto; max-width: 800px; background: rgba(0,0,0,0.8); border: 1px solid #333; color: #ccc; font-family: monospace; padding: 10px; height: 150px; overflow-y: auto; white-space: pre-wrap;"></div>
+
+    <div style="position: fixed; bottom: 10px; left: 20px; font-size: 0.6rem; color: var(--border-dim);">
+        PORT: 3001 // MODULE: BODY
+    </div>
+
+    <script>
+    async function updateStatus() {
+        try {
+            const res = await fetch('/api/status');
+            const data = await res.json();
+            const el = document.getElementById('status-indicator');
+            el.innerText = `MIRAGE_MODE: ${data.status}`;
+            el.style.color = data.status === 'ONLINE' ? '#0f0' : '#00f3ff';
+        } catch (e) {
+            console.error(e);
+        }
+    }
+    
+    async function castSpell(cls, spell, args) {
+        const consoleEl = document.getElementById('console-output');
+        consoleEl.innerHTML += `> Casting ${spell}...
+`;
+        
+        try {
+            const res = await fetch('/api/cast', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({class: cls, spell: spell, args: args})
+            });
+            const data = await res.json();
+            
+            if (data.status === 'success') {
+                consoleEl.innerHTML += `[SUCCESS]\n${data.result.stdout}\n`;
+            } else {
+                consoleEl.innerHTML += `[FAILURE] ${data.message}\n`;
+                if(data.details) consoleEl.innerHTML += `${JSON.stringify(data.details)}\n`;
+            }
+        } catch (e) {
+            consoleEl.innerHTML += `[ERROR] ${e.message}\n`;
+        }
+        consoleEl.scrollTop = consoleEl.scrollHeight;
+    }
+    
+    updateStatus();
+    setInterval(updateStatus, 5000);
+    </script>
+<script src="http://localhost:5000/static/portal_ritual.js?v=999" defer></script>
+</body>
+</html>

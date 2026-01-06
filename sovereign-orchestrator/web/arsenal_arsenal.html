@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>GEMINI // ARSENAL // UNIFIED</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/arsenal_war.css') }}">
+    <style>
+        body { background-color: #050505; color: #d0d0d0; font-family: 'Courier New', Courier, monospace; }
+        .sidebar { position: fixed; left: 0; top: 0; width: 250px; height: 100vh; background: #0a0a0a; border-right: 1px solid #333; padding: 20px; overflow-y: auto; }
+        .main-content { margin-left: 270px; padding: 40px; }
+        .class-btn { display: block; width: 100%; padding: 10px; background: #111; color: #888; border: 1px solid #222; margin-bottom: 5px; text-align: left; cursor: pointer; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px; }
+        .class-btn:hover, .class-btn.active { background: #222; color: #fff; border-color: #444; }
+        .book-section { margin-bottom: 40px; display: none; }
+        .book-section.active { display: block; }
+        .book-title { font-size: 1.5rem; color: var(--war-red); border-bottom: 1px solid #333; padding-bottom: 10px; margin-bottom: 20px; text-transform: uppercase; }
+        .spell-card { background: rgba(20, 20, 20, 0.8); border: 1px solid #222; padding: 15px; margin-bottom: 15px; border-left: 4px solid #444; transition: all 0.3s; }
+        .spell-card:hover { border-color: #555; background: rgba(30, 30, 30, 0.9); }
+        .spell-name { font-size: 1.1rem; color: #eee; margin-bottom: 5px; font-weight: bold; }
+        .spell-info { font-size: 0.85rem; color: #aaa; margin-bottom: 10px; line-height: 1.4; }
+        .spell-meta { font-size: 0.75rem; color: #666; display: flex; gap: 20px; }
+        .meta-label { color: #444; margin-right: 5px; text-transform: uppercase; }
+        .cast-btn { margin-top: 10px; padding: 5px 15px; background: #333; color: #fff; border: none; cursor: pointer; font-family: inherit; font-size: 0.7rem; text-transform: uppercase; }
+        .cast-btn:hover { background: var(--war-red); }
+        #console-output { position: fixed; right: 20px; bottom: 20px; width: 400px; height: 200px; background: rgba(0,0,0,0.9); border: 1px solid #333; color: #0f0; font-size: 0.75rem; padding: 10px; overflow-y: auto; white-space: pre-wrap; font-family: monospace; z-index: 1000; }
+        .chained-tag { color: #50fa7b; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <h2 style="color: #fff; font-size: 1rem; margin-bottom: 20px; border-bottom: 2px solid var(--war-red); padding-bottom: 10px;">CHARACTERS</h2>
+        {% for cls, data in arsenal.items() %}
+        <button class="class-btn" onclick="showClass('{{ cls }}')" id="btn-{{ cls }}">{{ cls }}</button>
+        {% endfor %}
+    </div>
+
+    <div class="main-content">
+        <div id="welcome-message">
+            <h1 style="font-size: 3rem; color: #222;">GEMINI // ARSENAL</h1>
+            <p style="color: #444;">Select a character class to view available spell books.</p>
+        </div>
+
+        {% for cls, data in arsenal.items() %}
+        <div id="class-{{ cls }}" class="book-section">
+            <h1 style="color: #fff; margin-bottom: 10px; text-transform: uppercase;">{{ cls }} // ARSENAL</h1>
+            
+            {% for book_name, book_data in data.books.items() %}
+            <div style="margin-top: 30px;">
+                <h2 class="book-title">BOOK: {{ book_name.replace('_', ' ') }}</h2>
+                {% for spell_name, spell in book_data.spells.items() %}
+                <div class="spell-card">
+                    <div class="spell-name">{{ spell_name }}</div>
+                    <div class="spell-info">{{ spell.information }}</div>
+                    <div class="spell-meta">
+                        <div><span class="meta-label">DEPS:</span> {{ spell.dependencies }}</div>
+                        <div><span class="meta-label">EFFECTS:</span> {{ spell.effects }}</div>
+                        {% if spell.chained_with != 'None' %}
+                        <div><span class="meta-label">CHAINED:</span> <span class="chained-tag">{{ spell.chained_with }}</span></div>
+                        {% endif %}
+                    </div>
+                    <button class="cast-btn" onclick="castSpell('{{ cls }}', '{{ spell.tunnel_name }}', [])">Invoke Spell</button>
+                </div>
+                {% endfor %}
+            </div>
+            {% endfor %}
+        </div>
+        {% endfor %}
+    </div>
+
+    <div id="console-output">> Awaiting invocation...</div>
+
+    <script>
+    function showClass(cls) {
+        document.getElementById('welcome-message').style.display = 'none';
+        const sections = document.querySelectorAll('.book-section');
+        sections.forEach(s => s.classList.remove('active'));
+        document.getElementById('class-' + cls).classList.add('active');
+        
+        const buttons = document.querySelectorAll('.class-btn');
+        buttons.forEach(b => b.classList.remove('active'));
+        document.getElementById('btn-' + cls).classList.add('active');
+    }
+
+    async function castSpell(cls, spellPath, args) {
+        const consoleEl = document.getElementById('console-output');
+        consoleEl.innerHTML += `\n> Invoking ${spellPath}...\n`;
+        
+        try {
+            const res = await fetch('/api/cast', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({class: cls, spell: spellPath, args: args})
+            });
+            const data = await res.json();
+            
+            if (data.status === 'success') {
+                consoleEl.innerHTML += `[SUCCESS]\n${data.result.stdout}\n`;
+            } else {
+                consoleEl.innerHTML += `[FAILURE] ${data.message}\n`;
+                if(data.details) consoleEl.innerHTML += `${JSON.stringify(data.details)}\n`;
+            }
+        } catch (e) {
+            consoleEl.innerHTML += `[ERROR] ${e.message}\n`;
+        }
+        consoleEl.scrollTop = consoleEl.scrollHeight;
+    }
+    </script>
+</body>
+</html>

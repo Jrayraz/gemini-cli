@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GEMINI // NEXUS_HUB</title>
+    <link rel="stylesheet" href="/static/root_sanctum.css?v=1.1">
+    <style>
+        :root {
+            --bg: #020202;
+            --panel: rgba(10, 10, 10, 0.9);
+            --accent: #00f3ff;
+            --war: #ff2a2a;
+            --soul: #bd93f9;
+            --mana: #ff9d00;
+            --border: rgba(0, 243, 255, 0.1);
+        }
+
+        body {
+            background: var(--bg);
+            color: #d0d0d0;
+            font-family: 'Consolas', 'Courier New', monospace;
+            margin: 0;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        /* --- Header --- */
+        .hub-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+            padding-left: 60px; /* Space for Portal Rune */
+        }
+
+        .hub-title {
+            font-size: 1.5rem;
+            letter-spacing: 5px;
+            color: var(--accent);
+            text-shadow: 0 0 10px rgba(0, 243, 255, 0.3);
+        }
+
+        /* --- Grid Layout --- */
+        .hub-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: auto auto;
+            gap: 20px;
+        }
+
+        .hub-panel {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            padding: 20px;
+            position: relative;
+            min-height: 250px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel-header {
+            font-size: 0.8rem;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* --- Status Indicators --- */
+        .status-badge {
+            font-size: 0.7rem;
+            padding: 2px 8px;
+            border-radius: 2px;
+            background: rgba(0, 255, 0, 0.1);
+            color: #0f0;
+            border: 1px solid #0f0;
+        }
+
+        /* --- System Pillars --- */
+        .pillar-card {
+            display: flex;
+            flex-direction: column; gap: 10px;
+        }
+
+        .pillar-link {
+            color: #fff; text-decoration: none; padding: 10px;
+            background: rgba(255, 255, 255, 0.03); border: 1px solid transparent;
+            transition: 0.3s; font-size: 0.9rem;
+        }
+
+        .pillar-link:hover {
+            background: rgba(0, 243, 255, 0.05); border-color: var(--accent); transform: translateX(5px);
+        }
+
+        /* --- Unified Feed --- */
+        .activity-feed {
+            flex: 1; overflow-y: auto; font-size: 0.8rem; color: #888; max-height: 300px;
+        }
+
+        .feed-item {
+            margin-bottom: 8px; border-left: 2px solid #333; padding-left: 10px;
+        }
+
+        /* --- Metrics --- */
+        .metric-row {
+            display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 0.9rem;
+        }
+        .metric-val { color: var(--mana); }
+
+        .global-actions {
+            grid-column: span 3; display: flex; gap: 15px; justify-content: center;
+            padding: 20px; border-top: 1px solid var(--border);
+        }
+
+        .btn-hub {
+            background: transparent; border: 1px solid var(--accent); color: var(--accent);
+            padding: 10px 25px; cursor: pointer; font-family: inherit;
+            text-transform: uppercase; letter-spacing: 2px; transition: 0.3s;
+        }
+        .btn-hub:hover { background: var(--accent); color: #000; box-shadow: 0 0 20px var(--accent); }
+
+    </style>
+</head>
+<body>
+
+    <div class="hub-header">
+        <div class="hub-title">GEMINI // NEXUS_HUB</div>
+        <div id="global-status" class="status-badge">SYSTEM_SANE: TRUE</div>
+    </div>
+
+    <div class="hub-grid">
+        <div class="hub-panel">
+            <div class="panel-header">Tactical Node: Moto <span class="status-badge" id="moto-status">SYNCED</span></div>
+            <div class="metric-row"><span>HEART RATE</span><span class="metric-val" id="moto-hr">-- BPM</span></div>
+            <div class="metric-row"><span>BLOOD O2</span><span class="metric-val" id="moto-o2">--%</span></div>
+            <div class="metric-row"><span>BEARING</span><span class="metric-val" id="moto-brg">0°</span></div>
+            <div class="metric-row"><span>LOCATION</span><span class="metric-val" id="moto-loc">0.0, 0.0</span></div>
+            <div class="panel-header">VIDEO FEED</div>
+            <div id="video-placeholder" style="flex:1; background:#111; display:flex; align-items:center; justify-content:center; color:#333; font-size:0.7rem;">[ ENCRYPTED STREAM ]</div>
+        </div>
+        
+        <!-- 1. THE BRAIN -->
+        <div class="hub-panel">
+            <div class="panel-header">
+                <span>ᚠ The Brain</span>
+                <span id="brain-status" class="status-badge">ONLINE</span>
+            </div>
+            <div class="pillar-card">
+                <div class="metric-row"><span>Model</span> <span class="metric-val" id="model-name">Qwen2.5-3B</span></div>
+                <div class="metric-row"><span>Status</span> <span class="metric-val" id="model-status">Operational</span></div>
+                <a href="http://localhost:5001/" class="pillar-link">Open Reasoning Proxy</a>
+                <a href="http://localhost:5001/retina" class="pillar-link">View Autonomy Stream</a>
+            </div>
+        </div>
+
+        <!-- 2. THE NERVOUS SYSTEM (RAMI) -->
+        <div class="hub-panel">
+            <div class="panel-header">
+                <span>ᛗ Nervous System</span>
+                <span id="rami-status" class="status-badge">ACTIVE</span>
+            </div>
+            <div id="rami-metrics" class="pillar-card">
+                <div class="metric-row"><span>CPU Load</span> <span class="metric-val" id="cpu-load">--%</span></div>
+                <div class="metric-row"><span>RAMI State</span> <span class="metric-val">Bound</span></div>
+                <a href="http://localhost:8081/" class="pillar-link">Open RAMI Dashboard</a>
+            </div>
+        </div>
+
+        <!-- 3. THE ARSENAL (BODY) -->
+        <div class="hub-panel">
+            <div class="panel-header">
+                <span>ᚦ Arsenal</span>
+                <span id="arsenal-status" class="status-badge">READY</span>
+            </div>
+            <div class="pillar-card">
+                <a href="http://localhost:3001/" class="pillar-link">ᚦ Warrior (Frontline)</a>
+                <a href="http://localhost:3001/warlock" class="pillar-link">ᚢ Warlock (Chaos)</a>
+                <a href="http://localhost:3001/cleric" class="pillar-link">ᚱ Cleric (Healing)</a>
+                <a href="http://localhost:3001/illusionist" class="pillar-link">ᛋ Illusionist (Mirage)</a>
+                <a href="http://localhost:3001/mana" class="pillar-link">ᛗ Mana (Flow)</a>
+            </div>
+        </div>
+
+        <!-- 4. DATA HIVE (CORTEX) -->
+        <div class="hub-panel">
+            <div class="panel-header">
+                <span>ᚥ Data Hive</span>
+                <span id="hive-status" class="status-badge">CONNECTED</span>
+            </div>
+            <div class="pillar-card">
+                <div class="metric-row"><span>Active Jobs</span> <span class="metric-val" id="hive-jobs">0</span></div>
+                <div class="metric-row"><span>Crawled Docs</span> <span class="metric-val" id="hive-crawled">0</span></div>
+                <a href="http://localhost:4002/" class="pillar-link">Training Orchestrator</a>
+            </div>
+        </div>
+
+        <!-- 5. SUBCONSCIOUS FEED -->
+        <div class="hub-panel" style="grid-column: span 2;">
+            <div class="panel-header">
+                <span>ᛋ Activity Stream</span>
+                <span style="font-size: 0.6rem; opacity: 0.5;">LIVE REASONING</span>
+            </div>
+            <div id="hub-feed" class="activity-feed"></div>
+        </div>
+
+        <!-- Global Actions -->
+        <div class="global-actions">
+            <button class="btn-hub" onclick="window.location.href='http://localhost:9001/'">ᛟ Nexus Throne</button>
+            <button class="btn-hub" style="border-color: var(--war); color: var(--war);" onclick="emergencyStop()">ᚦ Emergency Halt</button>
+        </div>
+
+    </div>
+
+    <script>
+        async function updateHub() {
+            try {
+                const brainRes = await fetch('/health');
+                const brainData = await brainRes.json();
+                document.getElementById('model-name').innerText = brainData.model.toUpperCase();
+
+                const subRes = await fetch('http://localhost:5001/autonomy/status');
+                const subData = await subRes.json();
+                document.getElementById('cpu-load').innerText = subData.last_load.toFixed(1) + "%";
+                
+                const feed = document.getElementById('hub-feed');
+                if (subData.last_decision !== "None") {
+                    const item = document.createElement('div');
+                    item.className = 'feed-item';
+                    item.innerHTML = `<span style="color:var(--accent)">[${new Date().toLocaleTimeString()}]</span> ${subData.last_decision} <br> <span style="color:#555">Intent: ${subData.last_intent}</span>`;
+                    feed.prepend(item);
+                    if(feed.children.length > 15) feed.removeChild(feed.lastChild);
+                }
+
+                const hiveRes = await fetch('http://localhost:4002/api/status');
+                const hiveData = await hiveRes.json();
+                document.getElementById('hive-jobs').innerText = hiveData.total_jobs - hiveData.completed_jobs;
+                document.getElementById('hive-crawled').innerText = hiveData.crawled_count || 0;
+
+            } catch (e) { console.error("Hub update failed", e); }
+        }
+
+        function emergencyStop() {
+            if(confirm("ALERT: This will signal all nodes to halt operations. Proceed?")) {
+                alert("Halt signal broadcasted.");
+            }
+        }
+
+        setInterval(updateHub, 3000);
+        updateHub();
+    </script>
+<script src="http://localhost:5000/static/portal_ritual.js?v=999" defer></script>
+</body>
+</html>

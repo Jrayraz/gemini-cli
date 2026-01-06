@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virt-I // THE ROOT SANCTUM</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='root_sanctum.css') }}?v=1.1">
+    <style>
+        /* --- God Mode Specific Styles --- */
+        body { align-items: center; }
+
+        /* --- Header --- */
+        header {
+            width: 100%;
+            max-width: 900px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            border-bottom: 2px solid var(--sudo-red);
+            padding-bottom: 10px;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            color: var(--sudo-red);
+            text-shadow: 0 0 10px rgba(255, 42, 42, 0.5);
+            margin: 0;
+            letter-spacing: 4px;
+        }
+
+        .help-btn, .cd-btn {
+            background: transparent;
+            color: var(--oracle-cyan);
+            border: 1px solid var(--oracle-cyan);
+            padding: 5px 15px;
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: all 0.2s;
+        }
+
+        .help-btn:hover, .cd-btn:hover {
+            background: rgba(0, 243, 255, 0.1);
+            box-shadow: 0 0 10px rgba(0, 243, 255, 0.3);
+        }
+        
+        .cd-btn {
+            margin-right: 15px;
+            border-color: var(--alchemy-gold);
+            color: var(--alchemy-gold);
+        }
+        .cd-btn:hover {
+            background: rgba(255, 215, 0, 0.1);
+            box-shadow: 0 0 10px var(--alchemy-gold);
+        }
+
+        .subtitle {
+            width: 100%;
+            max-width: 900px;
+            color: var(--border);
+            margin-top: -30px;
+            margin-bottom: 30px;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-align: left;
+        }
+
+        /* --- The Artifacts (Tool Select) --- */
+        .artifacts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            width: 100%;
+            max-width: 900px;
+            margin-bottom: 30px;
+        }
+
+        .artifact {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .artifact:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 15px rgba(0,0,0,0.5);
+        }
+
+        .artifact.selected {
+            border-color: var(--color);
+            background: rgba(255,255,255,0.05);
+            box-shadow: 0 0 10px var(--color);
+        }
+
+        .artifact i.rune {
+            font-size: 2.5rem;
+            display: block;
+            margin-bottom: 10px;
+            color: var(--color);
+            font-style: normal;
+            text-shadow: 0 0 15px var(--color);
+            transition: all 0.3s ease;
+        }
+
+        .artifact:hover i.rune {
+            text-shadow: 0 0 25px var(--color);
+            transform: scale(1.1);
+        }
+
+        .artifact span {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: bold;
+        }
+
+        /* --- The Altar (Input) --- */
+        .altar-panel {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            padding: 20px;
+            width: 100%;
+            max-width: 860px; /* accounted for padding */
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .scribe-container {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 5px;
+        }
+
+        .scribe-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            color: var(--text-main);
+            letter-spacing: 1px;
+        }
+
+        /* Toggle Switch */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 40px;
+            height: 20px;
+        }
+
+        .switch input { 
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #333;
+            transition: .4s;
+            border: 1px solid var(--border);
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 12px;
+            width: 12px;
+            left: 3px;
+            bottom: 3px;
+            background-color: #888;
+            transition: .4s;
+        }
+
+        input:checked + .slider {
+            background-color: var(--alchemy-gold);
+            box-shadow: 0 0 10px var(--alchemy-gold);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(20px);
+            background-color: #000;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .prefix {
+            background: #222;
+            color: var(--sudo-red);
+            padding: 10px 15px;
+            font-weight: bold;
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+        }
+
+        input[type="text"] {
+            flex-grow: 1; 
+        }
+
+        /* --- The Manifestation (Output) --- */
+        .manifestation-log {
+            width: 100%;
+            max-width: 860px;
+            height: 300px;
+            white-space: pre-wrap;
+            color: #ccc;
+            font-size: 0.9rem;
+        }
+
+        .log-entry {
+            margin-bottom: 10px;
+            border-bottom: 1px dashed #333;
+            padding-bottom: 5px;
+        }
+        .log-entry.error { color: var(--sudo-red); }
+        .log-entry.success { color: var(--oracle-cyan); }
+        
+        /* --- Modal (Grimoire) --- */
+        .modal {
+            display: none; 
+            position: fixed; 
+            z-index: 10; 
+            left: 0;
+            top: 0;
+            width: 100%; 
+            height: 100%; 
+            background-color: rgba(0,0,0,0.9); 
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background-color: var(--panel);
+            margin: 5% auto; 
+            padding: 30px;
+            border: 1px solid var(--oracle-cyan);
+            width: 80%;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 0 30px rgba(0, 243, 255, 0.1);
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close:hover { color: var(--sudo-red); }
+
+        .grimoire-section h3 {
+            color: var(--oracle-cyan);
+            border-bottom: 1px solid #333;
+            padding-bottom: 5px;
+            margin-top: 20px;
+        }
+
+        .grimoire-entry {
+            margin-bottom: 15px;
+            padding-left: 10px;
+            border-left: 2px solid #333;
+        }
+        .grimoire-entry strong { color: #fff; }
+        .grimoire-entry code { color: var(--alchemy-gold); background: #222; padding: 2px 5px; }
+
+    </style>
+</head>
+<body>
+
+    <!-- Global Portal -->
+
+    <header style="margin-top: 70px;">
+        <h1>The Root Sanctum</h1>
+        <button class="help-btn" onclick="toggleModal()">Access Grimoire (Help)</button>
+    </header>
+    <div class="subtitle">Authorized Personnel Only // Level: GOD_MODE</div>
+
+    <!-- The Artifacts -->
+    <div class="artifacts-grid">
+        <div class="artifact" onclick="selectTool('bash', '--sudo-red')" style="--color: var(--sudo-red)">
+            <i class="rune">ᚠ</i>
+            <span>Genesis (Bash)</span>
+        </div>
+        <div class="artifact" onclick="selectTool('nmap', '--oracle-cyan')" style="--color: var(--oracle-cyan)">
+            <i class="rune">ᛟ</i>
+            <span>Omniscience (Nmap)</span>
+        </div>
+        <div class="artifact" onclick="selectTool('apt-get', '--alchemy-gold')" style="--color: var(--alchemy-gold)">
+            <i class="rune">ᚦ</i>
+            <span>Alchemy (Apt)</span>
+        </div>
+        <div class="artifact" onclick="selectTool('iptables', '--shield-purple')" style="--color: var(--shield-purple)">
+            <i class="rune">ᛉ</i>
+            <span>Aegis (Iptables)</span>
+        </div>
+        <div class="artifact" onclick="selectTool('tcpdump', '--oracle-cyan')" style="--color: var(--oracle-cyan)">
+            <i class="rune">ᚨ</i>
+            <span>Whispers (Tcpdump)</span>
+        </div>
+        <div class="artifact" onclick="selectTool('hping3', '--sudo-red')" style="--color: var(--sudo-red)">
+            <i class="rune">ᚢ</i>
+            <span>Smite (Hping3)</span>
+        </div>
+        <div class="artifact" onclick="selectTool('script', '--void-purple')" style="--color: var(--void-purple)">
+            <i class="rune">ᛇ</i>
+            <span>Omega (Script)</span>
+        </div>
+    </div>
+
+    <!-- The Altar -->
+    <div class="altar-panel">
+        <div class="scribe-container">
+            <button class="cd-btn" onclick="changeDirectory()">CD [Root]</button>
+            <span class="scribe-label">The Scribe (Logs)</span>
+            <label class="switch">
+                <input type="checkbox" id="scribe-toggle">
+                <span class="slider"></span>
+            </label>
+        </div>
+        <div class="input-group">
+            <div class="prefix" id="sudo-prefix">sudo [SELECT TOOL]</div>
+            <input type="text" id="command-args" placeholder="Enter ritual arguments..." onkeypress="handleEnter(event)">
+            <input type="password" id="sudo-pass" placeholder="Sudo Key..." style="width: 150px; flex-grow: 0;">
+            <button class="invoke-btn" onclick="invokeRitual()">INVOKE</button>
+        </div>
+    </div>
+
+    <!-- The Manifestation -->
+    <div class="manifestation-log" id="output-log">
+        <div class="log-entry">> System connected. Waiting for invocation...</div>
+    </div>
+
+    <!-- The Grimoire (Help Modal) -->
+    <div id="helpModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="toggleModal()">&times;</span>
+            <h2 style="color: var(--oracle-cyan); margin-top:0;">GOD MODE GRIMOIRE</h2>
+            <p>Welcome to the Root Sanctum. You wield the power of <code>sudo</code>. Proceed with caution.</p>
+            
+            <div class="grimoire-section">
+                <h3>>_ Genesis (Bash)</h3>
+                <div class="grimoire-entry">
+                    <strong>Description:</strong> Direct shell execution. The most versatile and dangerous tool.<br>
+                    <strong>Usage:</strong> Enter full command strings including pipes and logic.<br>
+                    <strong>Example:</strong> <code>apt-get update && apt-get upgrade -y</code>
+                </div>
+            </div>
+
+            <div class="grimoire-section">
+                <h3>&#128065; Omniscience (Nmap)</h3>
+                <div class="grimoire-entry">
+                    <strong>Description:</strong> Network exploration and security auditing.<br>
+                    <strong>Usage:</strong> [Options] [Target]<br>
+                    <strong>Example:</strong> <code>-sS -p 1-1000 localhost</code>
+                </div>
+            </div>
+
+            <div class="grimoire-section">
+                <h3>&#9883; Alchemy (Apt/Apt-get)</h3>
+                <div class="grimoire-entry">
+                    <strong>Description:</strong> Package management. Install, update, or remove system components.<br>
+                    <strong>Usage:</strong> [Command] [Package]<br>
+                    <strong>Example:</strong> <code>install htop</code> or <code>update</code>
+                </div>
+            </div>
+
+            <div class="grimoire-section">
+                <h3>&#128737; Aegis (Iptables)</h3>
+                <div class="grimoire-entry">
+                    <strong>Description:</strong> Packet filtering and firewall configuration.<br>
+                    <strong>Usage:</strong> [Flags] [Chain] [Rule]<br>
+                    <strong>Example:</strong> <code>-L -v -n</code> (List rules)
+                </div>
+            </div>
+
+            <div class="grimoire-section">
+                <h3>&#128225; Whispers (Tcpdump)</h3>
+                <div class="grimoire-entry">
+                    <strong>Description:</strong> Packet analyzer. Capture traffic flowing through the network.<br>
+                    <strong>Usage:</strong> [Options] [Filter]<br>
+                    <strong>Example:</strong> <code>-i any port 80</code>
+                </div>
+            </div>
+             <div class="grimoire-section">
+                <h3>&#9889; Smite (Hping3)</h3>
+                <div class="grimoire-entry">
+                    <strong>Description:</strong> Packet generator/analyzer. Useful for stress testing.<br>
+                    <strong>Usage:</strong> [Options] [Target]<br>
+                    <strong>Example:</b> <code>-S -p 80 -c 5 localhost</code>
+                </div>
+            </div>
+
+            <div class="grimoire-section">
+                <h3>ᛇ Omega (Script)</h3>
+                <div class="grimoire-entry">
+                    <strong>Description:</strong> Execute a bash script file with root privileges.<br>
+                    <strong>Usage:</strong> [Absolute File Path]<br>
+                    <strong>Example:</strong> <code>/home/user/scripts/deploy.sh</code>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentTool = 'bash';
+        let currentToolName = 'Genesis'; // Default stylized name
+        let currentWorkingDir = "";
+
+        function selectTool(tool, colorVar) {
+            currentTool = tool;
+            
+            // Extract stylized name from the span
+            // We can do this by finding the span inside the clicked element
+            // But since selectTool is called by onclick, we can use event.currentTarget
+            const spanText = event.currentTarget.querySelector('span').innerText;
+            // Format: "Genesis (Bash)" -> "Genesis"
+            currentToolName = spanText.split(' (')[0];
+            
+            // Visual Updates
+            document.querySelectorAll('.artifact').forEach(el => el.classList.remove('selected'));
+            event.currentTarget.classList.add('selected');
+            
+            const prefixEl = document.getElementById('sudo-prefix');
+            prefixEl.textContent = `sudo ${tool}`;
+            prefixEl.style.color = `var(${colorVar})`;
+            
+            // Clear input for safety
+            document.getElementById('command-args').value = "";
+            document.getElementById('command-args').focus();
+        }
+
+        function handleEnter(e) {
+            if (e.key === 'Enter') invokeRitual();
+        }
+
+        function toggleModal() {
+            const modal = document.getElementById("helpModal");
+            modal.style.display = modal.style.display === "block" ? "none" : "block";
+        }
+
+        // Close modal if clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById("helpModal");
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+        
+        function changeDirectory() {
+            const dir = prompt("Enter Absolute Path for God Mode Execution:", currentWorkingDir || "/home/jrrosenbum/virt-i");
+            if (dir !== null) {
+                currentWorkingDir = dir.trim();
+                const btn = document.querySelector('.cd-btn');
+                btn.innerText = currentWorkingDir ? `CD [${currentWorkingDir.split('/').pop()}]` : "CD [Root]";
+            }
+        }
+
+        async function invokeRitual() {
+            const args = document.getElementById('command-args').value.trim();
+            const password = document.getElementById('sudo-pass').value;
+            const log = document.getElementById('output-log');
+            const invokeBtn = document.querySelector('.invoke-btn');
+            const scribeEnabled = document.getElementById('scribe-toggle').checked;
+
+            if (!args && currentTool !== 'bash') {
+                log.innerHTML += `<div class="log-entry error">> Error: Ritual requires arguments.</div>`;
+                return;
+            }
+
+            // Construct Command Structure
+            let commandPayload = [];
+            
+            // Base Command Construction
+            if (currentTool === 'bash') {
+                // User input IS the command
+                commandPayload = ['bash', '-c', args];
+            } else if (currentTool === 'script') {
+                // User input IS the filename
+                commandPayload = ['bash', args];
+            } else {
+                // Tool + Args
+                commandPayload = [currentTool, ...args.split(' ')];
+            }
+            
+            // Directory Handling: Wrap in bash -c if CD is active
+            if (currentWorkingDir) {
+                let rawCmd = "";
+                if (currentTool === 'bash') {
+                    rawCmd = args;
+                } else if (currentTool === 'script') {
+                    rawCmd = `bash ${args}`;
+                } else {
+                    rawCmd = `${currentTool} ${args}`;
+                }
+                
+                // Final Wrap: cd DIR && COMMAND
+                commandPayload = ['bash', '-c', `cd ${currentWorkingDir} && ${rawCmd}`];
+            }
+
+            log.innerHTML += `<div class="log-entry">> Invoking: sudo ${commandPayload.join(' ')}...</div>`;
+            if (scribeEnabled) {
+                log.innerHTML += `<div class="log-entry">> The Scribe is recording...</div>`;
+            }
+            
+            // Add Loading Animation
+            const loadingId = 'loading-' + Date.now();
+            log.innerHTML += `<div id="${loadingId}" class="log-entry manifesting">> Manifesting Intent...</div>`;
+            log.scrollTop = log.scrollHeight;
+            
+            invokeBtn.innerText = "CASTING...";
+            invokeBtn.disabled = true;
+
+            try {
+                const response = await fetch('/introspect/god_mode', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        command: commandPayload,
+                        password: password,
+                        log_output: scribeEnabled,
+                        tool_name: currentToolName
+                    })
+                });
+
+                const data = await response.json();
+                
+                // Remove Loading Animation
+                const loader = document.getElementById(loadingId);
+                if(loader) loader.remove();
+                
+                if (data.error) {
+                    log.innerHTML += `<div class="log-entry error">> FAILED: ${data.error}</div>`;
+                } else {
+                    log.innerHTML += `<div class="log-entry success">${data.output}</div>`;
+                    if (data.log_file) {
+                        log.innerHTML += `<div class="log-entry">> Inscribed to: ${data.log_file}</div>`;
+                    }
+                    log.innerHTML += `<div class="log-entry">> Ritual Complete.</div>`;
+                }
+
+            } catch (err) {
+                const loader = document.getElementById(loadingId);
+                if(loader) loader.remove();
+                log.innerHTML += `<div class="log-entry error">> CONNECTION SEVERED: ${err.message}</div>`;
+            } finally {
+                invokeBtn.innerText = "INVOKE";
+                invokeBtn.disabled = false;
+                log.scrollTop = log.scrollHeight;
+            }
+        }
+
+        // Select Bash by default
+        window.onload = () => {
+            document.querySelector('.artifact').click();
+        };
+    </script>
+<script src="http://localhost:5000/static/portal_ritual.js?v=999" defer></script>
+</body>
+</html>

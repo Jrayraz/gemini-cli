@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virt-I: The Tribal Node</title>
+            <title>Virt-I: The Tribal Node</title>
+            <link rel="stylesheet" href="{{ url_for('static', filename='root_sanctum.css') }}?v=1.1">
+                <style>
+                    /* Layout-Specific Styles for LLM Interface */
+                    body { align-items: stretch; }
+            
+                    /* --- Tribal Navigation --- */                .nav-bar {
+                    height: 60px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    position: relative;
+                    background: linear-gradient(to bottom, #000, transparent);
+                    z-index: 100;
+                    border-bottom: 1px solid rgba(255, 42, 42, 0.2);
+                }
+        
+                .tribal-btn {
+                    background: none;
+                    border: none;
+                    cursor: pointer;
+                    transition: transform 0.2s;
+                    filter: drop-shadow(0 0 5px var(--sudo-red));
+                }
+                
+                .tribal-btn:hover {
+                    transform: scale(1.1);
+                    filter: drop-shadow(0 0 10px var(--sudo-red));
+                }
+        
+                .tribal-arrow path {
+                    fill: var(--sudo-red);
+                }
+        
+                /* --- Menu Box --- */
+                .menu-overlay {
+                    position: fixed;
+                    top: 70px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    width: 300px;
+                    background: var(--panel);
+                    border: 1px solid var(--oracle-cyan);
+                    border-radius: 0; 
+                    box-shadow: 0 0 20px rgba(0, 243, 255, 0.1);
+                    display: none;
+                    flex-direction: column;
+                    z-index: 200;
+                    padding: 10px;
+                }
+                
+                .menu-item {
+                    padding: 15px;
+                    text-align: center;
+                    cursor: pointer;
+                    color: var(--text-main);
+                    border-bottom: 1px solid #222;
+                    transition: all 0.2s;
+                    font-family: var(--font-header);
+                    text-transform: uppercase;
+                    letter-spacing: 1px;
+                }
+                .menu-item:hover { 
+                    background: rgba(0, 243, 255, 0.1); 
+                    color: var(--oracle-cyan); 
+                    text-shadow: 0 0 5px var(--oracle-cyan);
+                }
+                .menu-item:last-child { border-bottom: none; }
+        
+                /* --- Main Layouts --- */
+                .viewport {
+                    flex: 1;
+                    padding: 20px;
+                    overflow-y: auto;
+                    position: relative;
+                }
+        
+                /* Default Chat View */
+                .view-default { display: flex; flex-direction: column; height: 100%; max-width: 95%; margin: 0 auto; }
+                
+                /* Split View (Code Gen) */
+                .view-split { 
+                    display: none; 
+                    grid-template-columns: 1fr 1fr; 
+                    gap: 20px; 
+                    height: 100%; 
+                }
+                .split-panel {
+                    background: var(--panel);
+                    border: 1px solid var(--border);
+                    padding: 15px;
+                    display: flex;
+                    flex-direction: column;
+                }
+                .split-panel h3 { color: var(--oracle-cyan); font-family: var(--font-header); text-transform: uppercase; margin-top: 0; }
+        
+                /* Image Focus View */
+                .view-image { 
+                    display: none; 
+                    flex-direction: column; 
+                    align-items: center; 
+                    justify-content: center; 
+                    height: 100%;
+                }
+        
+                /* --- Components --- */
+                textarea {
+                    width: 100%;
+                    border-radius: 0;
+                    resize: vertical;
+                    min-height: 60px;
+                }
+                
+                .chat-log {
+                    flex: 1;
+                    overflow-y: auto;
+                    margin-bottom: 20px;
+                    padding-right: 10px;
+                    border: 1px solid transparent; 
+                    resize: vertical; 
+                    min-height: 200px;
+                }
+        
+                .msg { margin-bottom: 15px; padding: 10px; border-left: 3px solid transparent; }
+                .msg.user { 
+                    background: #111; 
+                    border-left-color: var(--sudo-red);
+                    color: #ccc;
+                }
+                .msg.ai { 
+                    background: #0a0a0a; 
+                    border-left-color: var(--oracle-cyan);
+                    color: var(--oracle-cyan);
+                    border: 1px solid #111;
+                }
+        
+                .controls-area {
+                    display: flex;
+                    gap: 10px;
+                    align-items: flex-start;
+                }
+        
+                /* Image Processing Effect */
+                .image-container {
+                    position: relative;
+                    width: 80%; 
+                    max-width: 800px;
+                    height: 60vh;
+                    background: #000;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    border: 2px dashed var(--border);
+                    overflow: auto;
+                    resize: both;
+                }
+        
+                /* Processing Glitch */
+                .processing-effect {
+                    position: absolute;
+                    top: 0; left: 0; right: 0; bottom: 0;
+                    background: linear-gradient(45deg, transparent 40%, var(--oracle-cyan) 50%, transparent 60%);
+                    background-size: 200% 200%;
+                    animation: scan 1s linear infinite;
+                    display: none;
+                    pointer-events: none;
+                    opacity: 0.3;
+                }
+        
+                @keyframes scan {
+                    0% { background-position: 0% 50%; }
+                    100% { background-position: 100% 50%; }
+                }
+        
+                input[type="file"] { display: none; }
+            </style></head>
+<body>
+
+    <!-- Global Portal -->
+
+    <!-- Tribal Navigation (Local) -->
+    <div class="nav-bar" style="margin-top: 50px;">
+        <button class="tribal-btn" onclick="toggleMenu()">
+            <svg class="tribal-arrow" width="40" height="40" viewBox="0 0 24 24">
+                <path d="M12 2L2 12h5v8h10v-8h5L12 2z"/>
+            </svg>
+        </button>
+    </div>
+
+    <!-- Menu Box -->
+    <div id="menu-box" class="menu-overlay">
+        <div class="menu-item" onclick="setMode('review')">Code Review</div>
+        <div class="menu-item" onclick="setMode('codegen')">Code Generation</div>
+        <div class="menu-item" onclick="setMode('image')">Image Processing</div>
+        <div class="menu-item" onclick="setMode('designer')">Designer Mode</div>
+    </div>
+
+    <div class="viewport">
+        
+        <!-- Standard / Code Review / Designer View -->
+        <div id="view-default" class="view-default">
+            
+            <!-- Real-time System Intelligence Panel -->
+            <div id="system-intelligence" style="background: rgba(0, 20, 20, 0.8); border: 1px solid var(--oracle-cyan); padding: 10px; margin-bottom: 10px; font-family: monospace; color: var(--oracle-cyan); font-size: 0.8em; display: flex; justify-content: space-around;">
+                <span id="metric-cpu">CPU: Loading...</span>
+                <span id="metric-ram">RAM: Loading...</span>
+                <span id="metric-os">OS: Loading...</span>
+                <span id="metric-uptime">Uptime: Loading...</span>
+            </div>
+
+            <div id="chat-log" class="chat-log">
+                <div class="msg ai">I am Virt-I. Select a mode above or start chatting.</div>
+            </div>
+            
+            <div id="review-status" style="display:none; color: var(--accent); margin-bottom: 10px; font-size: 0.9em;">
+                Reviewing context: <span id="review-filename">None</span>
+            </div>
+
+            <div class="controls-area">
+                <textarea id="prompt-input" rows="3" placeholder="Enter instructions..."></textarea>
+                <button class="btn-main" onclick="sendPrompt()">SEND</button>
+            </div>
+        </div>
+
+        <!-- Code Generation Split View -->
+        <div id="view-split" class="view-split">
+            <div class="split-panel">
+                <h3>Source / Context</h3>
+                <textarea id="codegen-input" style="flex: 1; background: #111;" placeholder="Load file or paste code here..."></textarea>
+            </div>
+            <div class="split-panel">
+                <h3>Generated Output</h3>
+                <div id="codegen-output" style="flex: 1; background: #111; padding: 10px; font-family: monospace; white-space: pre-wrap; overflow: auto; border: 1px dashed #444; min-height: 100px;"></div>
+            </div>
+            <!-- Floating Send for Split View -->
+            <div style="position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); width: 400px; display: flex;">
+                <input type="text" id="codegen-prompt" style="flex:1; padding: 10px; border-radius: 4px; border:none;" placeholder="Instructions for generation...">
+                <button class="btn-main" onclick="sendCodegen()">GENERATE</button>
+            </div>
+        </div>
+
+        <!-- Image Processing View -->
+        <div id="view-image" class="view-image">
+            <div class="image-container" onclick="triggerImageUpload()">
+                <img id="main-image" src="" alt="Upload Image" style="display:none;">
+                <div id="image-placeholder" style="color: #666;">Click to Upload Image</div>
+                <div id="processing-fx" class="processing-effect"></div>
+            </div>
+            
+            <div style="margin-top: 20px; display: flex; gap: 10px; width: 512px;">
+                <input type="text" id="image-prompt" style="flex:1; padding: 10px; border-radius: 4px; background: #222; border:1px solid #444; color:white;" placeholder="Prompt (e.g. 'make it cybernetic', 'blur background')">
+                <button class="btn-main" onclick="sendImagePrompt()">EDIT</button>
+            </div>
+            
+            <a id="save-btn" href="#" download="generated.png" style="margin-top: 10px; display:none;">Save Image</a>
+        </div>
+
+    </div>
+
+    <!-- Bottom Arrow (Placeholder/Close) -->
+    <div class="nav-bar" style="background: linear-gradient(to top, #000, transparent);">
+        <button class="tribal-btn">
+            <svg class="tribal-arrow" width="40" height="40" viewBox="0 0 24 24">
+                <path d="M12 22L22 12h-5V4H7v8H2l10 10z"/>
+            </svg>
+        </button>
+    </div>
+
+    <!-- Hidden File Input -->
+    <input type="file" id="global-file-input" onchange="handleFileLoaded(this)>
+
+<script>
+    let currentMode = 'default';
+    let currentContext = ""; // Stores text for Code Review
+    let currentImage = null; // Filename of uploaded image
+
+    // --- System Intelligence Polling --- 
+    async function updateSystemMetrics() {
+        try {
+            const res = await fetch('/terminal/sys_info');
+            const data = await res.json();
+            
+            document.getElementById('metric-cpu').innerText = `CPU: ${data.cpu}`;
+            document.getElementById('metric-ram').innerText = `RAM: ${data.ram}`;
+            document.getElementById('metric-os').innerText = `OS: ${data.os}`;
+            document.getElementById('metric-uptime').innerText = `Uptime: ${data.uptime}`;
+            
+        } catch (e) {
+            console.error("Metrics fetch failed:", e);
+        }
+        setTimeout(updateSystemMetrics, 5000);
+    }
+    
+    // Start polling on load
+    updateSystemMetrics();
+
+    function toggleMenu() {
+        const menu = document.getElementById('menu-box');
+        menu.style.display = menu.style.display === 'flex' ? 'none' : 'flex';
+    }
+
+    function setMode(mode) {
+        currentMode = mode;
+        document.getElementById('menu-box').style.display = 'none';
+        
+        // Hide all views
+        document.getElementById('view-default').style.display = 'none';
+        document.getElementById('view-split').style.display = 'none';
+        document.getElementById('view-image').style.display = 'none';
+
+        if (mode === 'review') {
+            document.getElementById('view-default').style.display = 'flex';
+            document.getElementById('review-status').style.display = 'block';
+            triggerFileUpload(); // Prompt for file immediately
+        } 
+        else if (mode === 'codegen') {
+            document.getElementById('view-split').style.display = 'grid';
+            triggerFileUpload(); // Prompt for seed file
+        }
+        else if (mode === 'image') {
+            document.getElementById('view-image').style.display = 'flex';
+            triggerFileUpload('image'); // Prompt for image
+        }
+        else if (mode === 'designer') {
+            document.getElementById('view-default').style.display = 'flex';
+            addMsg('ai', "Designer Mode Active. Upload assets (images) first, then tell me how to combine them.");
+            triggerFileUpload('image');
+        }
+        else {
+            document.getElementById('view-default').style.display = 'flex';
+        }
+    }
+
+    function triggerFileUpload(type = 'text') {
+        const input = document.getElementById('global-file-input');
+        input.accept = type === 'image' ? 'image/*' : '.txt,.py,.js,.html,.css,.c,.cpp,.rs';
+        input.click();
+    }
+
+    async function handleFileLoaded(input) {
+        if (!input.files || !input.files[0]) return;
+        const file = input.files[0];
+        
+        // Upload logic
+        const formData = new FormData();
+        formData.append('file', file);
+        
+        try {
+            const res = await fetch('/upload', { method: 'POST', body: formData });
+            const data = await res.json();
+            
+            if (currentMode === 'review') {
+                // Fetch context and suggestions
+                const analysis = await fetch('/analyze_code_file', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ filename: data.filename })
+                }).then(r => r.json());
+
+                // Store both Code AND Analysis in context for the LLM
+                currentContext = `Context File: ${data.filename}\nType: ${analysis.language}\n\nCode Content:\n${analysis.preview}\n\nStatic Analysis Report:\n${analysis.tool_analysis}\n\n`;
+                document.getElementById('review-filename').innerText = data.filename;
+                
+                // Show summary to user
+                let msg = `I have reviewed ${data.filename} (${analysis.language}).\n\n**Analysis Findings:**\n${analysis.tool_analysis}\n\n**Suggestions:**\n- ${analysis.suggestions.join('\n- ')}`;
+                addMsg('ai', msg);
+            
+            } else if (currentMode === 'codegen') {
+                // Load into top pane
+                const content = await fetch(`/process_text_file`, { // Abuse this endpoint just to read content? No, let's just assume we need to read it.
+                    // Actually, simpler to just read via FileReader locally for the UI preview
+                }).catch(()=>{});
+                
+                // Let's just read local file for preview
+                const reader = new FileReader();
+                reader.onload = function(e) { document.getElementById('codegen-input').value = e.target.result; };
+                reader.readAsText(file);
+                
+                currentContext = data.filename; // Store filename for reference
+
+            } else if (currentMode === 'image') {
+                currentImage = data.filename;
+                const img = document.getElementById('main-image');
+                img.src = `static/uploads/${data.filename}`;
+                img.style.display = 'block';
+                document.getElementById('image-placeholder').style.display = 'none';
+            }
+            else if (currentMode === 'designer') {
+                addMsg('user', `[Uploaded ${data.filename}]`);
+                // Append to context so LLM knows this file exists
+                currentContext += `Asset: ${data.filename}\n`;
+            }
+
+        } catch (e) {
+            alert("Upload failed: " + e);
+        }
+    }
+
+    function addMsg(role, text, imageUrl = null) {
+        const log = document.getElementById('chat-log');
+        const div = document.createElement('div');
+        div.className = `msg ${role}`;
+        div.innerText = text;
+        
+        if (imageUrl) {
+            const img = document.createElement('img');
+            img.src = `${imageUrl}?t=${new Date().getTime()}`;
+            img.className = 'image-preview';
+            div.appendChild(document.createElement('br'));
+            div.appendChild(img);
+        }
+        
+        log.appendChild(div);
+        log.scrollTop = log.scrollHeight;
+    }
+
+    async function sendPrompt() {
+        console.log("sendPrompt called");
+        const input = document.getElementById('prompt-input');
+        const text = input.value;
+        if (!text) return;
+        
+        addMsg('user', text);
+        input.value = '';
+
+        // Combine context if in review mode
+        const fullPrompt = currentContext ? `${currentContext}User Question: ${text}` : text;
+
+        // Use the current active mode (review/designer/default)
+        // If mode is 'review', we generally want 'technical' instruction but with context.
+        // If 'designer', we send 'designer'.
+        // If default, we send null to let the backend DETECT the mode (Conversational vs Philosophical)
+        let apiMode = null; 
+        if (currentMode === 'review') apiMode = 'technical';
+        if (currentMode === 'designer') apiMode = 'designer';
+
+        // Add Loading Animation
+        const log = document.getElementById('chat-log');
+        const loadingId = 'loading-' + Date.now();
+        const loadingDiv = document.createElement('div');
+        loadingDiv.id = loadingId;
+        loadingDiv.className = 'msg ai manifesting';
+        loadingDiv.innerText = 'Manifesting Response...';
+        log.appendChild(loadingDiv);
+        log.scrollTop = log.scrollHeight;
+
+        try {
+            console.log("Fetching /generate...");
+            const res = await fetch('/generate', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ prompt: fullPrompt, mode: apiMode })
+            });
+            const data = await res.json();
+            console.log("Response received:", data);
+            
+            // Remove Loading
+            const loader = document.getElementById(loadingId);
+            if(loader) loader.remove();
+            
+            addMsg('ai', data.response, data.image_url);
+        } catch (e) {
+            console.error("Fetch failed:", e);
+            const loader = document.getElementById(loadingId);
+            if(loader) loader.remove();
+            addMsg('ai', "Error: " + e);
+        }
+    }
+
+    async function sendCodegen() {
+        const input = document.getElementById('codegen-prompt');
+        const source = document.getElementById('codegen-input').value;
+        const output = document.getElementById('codegen-output');
+        
+        output.innerText = "Generating...";
+        
+        const fullPrompt = `Source Code/Context:\n${source}\n\nTask: ${input.value}\n\nGenerate the requested code:`
+        
+        try {
+            const res = await fetch('/generate', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ prompt: fullPrompt, mode: 'technical', max_tokens: 512 })
+            });
+            const data = await res.json();
+            output.innerText = data.response;
+        } catch (e) {
+            output.innerText = "Error: " + e;
+        }
+    }
+
+    async function sendImagePrompt() {
+        if (!currentImage) return;
+        const prompt = document.getElementById('image-prompt').value;
+        const fx = document.getElementById('processing-fx');
+        
+        fx.style.display = 'block'; // Cool effect ON
+        
+        try {
+            const res = await fetch('/process_image', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    filename: currentImage,
+                    prompt: prompt
+                })
+            });
+            const data = await res.json();
+            
+            // Artificial delay to show off the cool effect
+            setTimeout(() => {
+                fx.style.display = 'none'; // Cool effect OFF
+                if (data.output_url) {
+                    const img = document.getElementById('main-image');
+                    img.src = `${data.output_url}?t=${new Date().getTime()}`; // Cache bust
+                    
+                    const saveBtn = document.getElementById('save-btn');
+                    saveBtn.href = data.output_url;
+                    saveBtn.style.display = 'inline-block';
+                    
+                    // Update current image so subsequent edits apply to the NEW version
+                    currentImage = data.output_url.split('/').pop();
+                }
+            }, 1000);
+
+        } catch (e) {
+            fx.style.display = 'none';
+            alert(e);
+        }
+    }
+</script>
+
+<script src="http://localhost:5000/static/portal_ritual.js?v=999" defer></script>
+</body>
+</html>

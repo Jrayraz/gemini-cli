@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virt-I // CORTEX</title>
+    <link rel="stylesheet" href="/static/root_sanctum.css?v=1.1">
+    <style>
+        /* Cortex Specific Styles */
+        body {
+            overflow: hidden;
+            align-items: stretch; /* Critical for Flexbox parent */
+            width: 100vw;
+        }
+
+        .cortex-container {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            grid-template-rows: 1fr;
+            gap: 25px;
+            height: calc(100vh - 80px); /* Adjust for header */
+            padding: 20px;
+            width: 100%;
+            box-sizing: border-box;
+            max-width: none; /* Remove any width caps */
+            margin: 0;
+        }
+
+        /* --- Left Panel: The Heartbeat --- */
+        .heart-panel {
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .pulse-ring {
+            width: 150px;
+            height: 150px;
+            border: 2px solid var(--oracle-cyan);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: #fff;
+            position: relative;
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.2);
+            font-family: var(--font-mono);
+        }
+
+        .pulse-ring.active {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(0, 243, 255, 0.7); }
+            70% { box-shadow: 0 0 0 30px rgba(0, 243, 255, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 243, 255, 0); }
+        }
+
+        .status-label {
+            margin-top: 20px;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--border);
+        }
+
+        .interval-info {
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: var(--alchemy-gold);
+        }
+
+        /* --- Right Panel: Stream of Consciousness --- */
+        .right-column {
+            display: grid;
+            grid-template-rows: 2fr 1fr; /* Stream takes 2/3, Controls take 1/3 */
+            gap: 20px;
+            overflow: hidden;
+        }
+
+        .stream-panel {
+            background: rgba(10, 10, 10, 0.9);
+            border: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .control-panel {
+            background: rgba(10, 10, 10, 0.9);
+            border: 1px solid var(--border);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .stream-header, .control-header {
+            background: #111;
+            padding: 10px 20px;
+            border-bottom: 1px solid var(--border);
+            color: var(--oracle-cyan);
+            font-family: var(--font-header);
+            text-transform: uppercase;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .stream-feed {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+        }
+
+        /* Form Controls */
+        .control-group {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #222;
+            padding-bottom: 10px;
+        }
+        
+        .control-group label {
+            color: var(--text-main);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+        }
+
+        .control-input {
+            background: #222;
+            border: 1px solid #444;
+            color: var(--alchemy-gold);
+            padding: 5px 10px;
+            font-family: var(--font-mono);
+            width: 80px;
+            text-align: right;
+        }
+
+        /* Toggle Switch */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 40px;
+            height: 20px;
+        }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #333;
+            transition: .4s;
+            border: 1px solid var(--border);
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 12px; width: 12px;
+            left: 3px; bottom: 3px;
+            background-color: #888;
+            transition: .4s;
+        }
+        input:checked + .slider { background-color: var(--oracle-cyan); }
+        input:checked + .slider:before { transform: translateX(20px); background-color: #000; }
+
+        .feed-item {
+            margin-bottom: 15px;
+            padding-left: 15px;
+            border-left: 2px solid #333;
+            transition: all 0.3s;
+            opacity: 0.7;
+        }
+
+        .feed-item:hover {
+            opacity: 1;
+            border-left-color: var(--oracle-cyan);
+            background: rgba(255,255,255,0.02);
+        }
+
+        .feed-item.alert { border-left-color: var(--sudo-red); background: rgba(255, 42, 42, 0.05); }
+        .tag.alert { color: var(--sudo-red); border: 1px solid var(--sudo-red); }
+
+        @keyframes alert-flash {
+            0% { border-color: var(--border); }
+            50% { border-color: var(--sudo-red); box-shadow: 0 0 20px rgba(255, 42, 42, 0.4); }
+            100% { border-color: var(--border); }
+        }
+        .container-alert { animation: alert-flash 1s infinite; }
+
+        /* Stats Grid at Bottom of Stream */
+        .stats-footer {
+            border-top: 1px solid var(--border);
+            padding: 10px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            background: #000;
+        }
+        
+        .mini-stat {
+            text-align: center;
+        }
+        .mini-stat label { display: block; font-size: 0.7rem; color: #555; }
+        .mini-stat span { font-size: 1rem; color: var(--text-main); }
+
+    </style>
+</head>
+<body>
+
+    <!-- Global Portal -->
+
+    <div class="cortex-container" style="margin-top: 50px;">
+        
+        <!-- Left: Heartbeat -->
+        <div class="heart-panel">
+            <div id="pulse-ring" class="pulse-ring">
+                <span id="countdown">--</span>
+            </div>
+            <div class="status-label" id="status-text">DISCONNECTED</div>
+            <div class="interval-info" id="interval-text">Interval: Unknown</div>
+        </div>
+
+        <!-- Right Column: Stream & Controls -->
+        <div class="right-column">
+            
+            <!-- Top: Stream -->
+            <div class="stream-panel">
+                <div class="stream-header">
+                    <span>Subconscious Stream</span>
+                    <span style="font-size: 0.8rem; opacity: 0.5;">LIVE FEED</span>
+                </div>
+                <div id="stream-feed" class="stream-feed">
+                    <!-- Items injected here -->
+                </div>
+                <div class="stats-footer">
+                    <div class="mini-stat">
+                        <label>Last Load</label>
+                        <span id="stat-load">--%</span>
+                    </div>
+                    <div class="mini-stat">
+                        <label>Decisions Made</label>
+                        <span id="stat-decisions">0</span>
+                    </div>
+                    <div class="mini-stat">
+                        <label>Security Level</label>
+                        <span id="stat-sec">--</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom: Controls -->
+            <div class="control-panel">
+                <div class="control-header">
+                    <span>Synaptic Control</span>
+                    <button class="btn-main" onclick="saveConfig()" style="font-size:0.7rem; padding: 2px 10px;">UPDATE</button>
+                </div>
+                
+                <div class="control-group">
+                    <label>Autonomy Enabled</label>
+                    <label class="switch">
+                        <input type="checkbox" id="cfg-enabled">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <div class="control-group">
+                    <label>Base Interval (Seconds)</label>
+                    <input type="number" id="cfg-interval" class="control-input" value="300">
+                </div>
+
+                <div class="control-group">
+                    <label>Max Load Threshold (%)</label>
+                    <input type="number" id="cfg-load" class="control-input" value="50">
+                </div>
+                
+                <div style="font-size: 0.7rem; color: #666; margin-top: 5px;">
+                    * Updates applied at start of next cycle.
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        let nextWakeTime = 0;
+        let lastId = null;
+
+        function updateCountdown() {
+            const now = Date.now() / 1000;
+            const diff = nextWakeTime - now;
+            
+            const ring = document.getElementById('pulse-ring');
+            const cd = document.getElementById('countdown');
+            const status = document.getElementById('status-text');
+
+            if (document.getElementById('status-text').innerText === "PAUSED") {
+                 // Do nothing, handled by pollStatus
+            } else if (diff <= 0) {
+                cd.innerText = "AWAKE";
+                ring.classList.add('active');
+                status.innerText = "PROCESSING...";
+                status.style.color = "var(--oracle-cyan)";
+            } else {
+                cd.innerText = Math.ceil(diff) + "s";
+                ring.classList.remove('active');
+                status.innerText = "SLEEPING";
+                status.style.color = "#666";
+            }
+        }
+
+        async function pollStatus() {
+            try {
+                const res = await fetch('/autonomy/status');
+                const data = await res.json();
+                
+                if (data.error) return;
+
+                // Handle Paused State
+                if (data.status === "paused") {
+                     document.getElementById('status-text').innerText = "PAUSED";
+                     document.getElementById('status-text').style.color = "var(--sudo-red)";
+                     document.getElementById('pulse-ring').classList.remove('active');
+                     document.getElementById('countdown').innerText = "--";
+                } else {
+                    nextWakeTime = data.next_wake;
+                }
+
+                document.getElementById('interval-text').innerText = `Interval: ${data.interval}s`;
+                
+                // Update Footer Stats
+                document.getElementById('stat-load').innerText = data.last_load ? data.last_load.toFixed(1) + "%" : "--%";
+                document.getElementById('stat-sec').innerText = data.last_sec || "--";
+
+                // Add Feed Item if new
+                const feed = document.getElementById('stream-feed');
+                
+                if (data.last_decision_ts && data.last_decision_ts !== lastId) {
+                    lastId = data.last_decision_ts;
+                    
+                    // Add Context Item
+                    const ctxDiv = document.createElement('div');
+                    ctxDiv.className = 'feed-item context';
+                    ctxDiv.innerHTML = `<span class="timestamp">[${new Date(data.last_decision_ts * 1000).toLocaleTimeString()}]</span> <span class="tag context">SENSE</span> ${data.last_context.replace(/\n/g, ' | ')}`;
+                    feed.prepend(ctxDiv);
+
+                    // Add Intent Item (NEW)
+                    if (data.last_intent && data.last_intent !== "None") {
+                        const intDiv = document.createElement('div');
+                        intDiv.className = 'feed-item intent';
+                        intDiv.innerHTML = `<span class="timestamp">[${new Date(data.last_decision_ts * 1000).toLocaleTimeString()}]</span> <span class="tag context" style="border-color: var(--alchemy-gold); color: var(--alchemy-gold);">INTENT</span> <strong>${data.last_intent}</strong>`;
+                        feed.prepend(intDiv);
+                    }
+
+                    // Add Decision Item
+                    const decDiv = document.createElement('div');
+                    decDiv.className = 'feed-item decision';
+                    decDiv.innerHTML = `<span class="timestamp">[${new Date(data.last_decision_ts * 1000).toLocaleTimeString()}]</span> <span class="tag decision">ACT</span> <strong>${data.last_decision}</strong>`;
+                    feed.prepend(decDiv);
+                    
+                    // Increment counter (local estimation)
+                    const count = document.getElementById('stat-decisions');
+                    count.innerText = parseInt(count.innerText) + 1;
+                }
+
+            } catch (e) {
+                console.error("Poll failed", e);
+            }
+        }
+
+        async function pollSentry() {
+            try {
+                const res = await fetch('/sentry/stream');
+                const alerts = await res.json();
+                
+                if (alerts.length > 0) {
+                    const feed = document.getElementById('stream-feed');
+                    const container = document.querySelector('.stream-panel');
+                    
+                    alerts.forEach(a => {
+                        const div = document.createElement('div');
+                        div.className = `feed-item ${a.type}`;
+                        div.innerHTML = `<span class="timestamp">[${new Date(a.ts * 1000).toLocaleTimeString()}]</span> <span class="tag ${a.type}">${a.type.toUpperCase()}</span> ${a.msg}`;
+                        feed.prepend(div);
+                        
+                        if (a.type === 'alert') {
+                            container.classList.add('container-alert');
+                            // Remove flash after 5 seconds
+                            setTimeout(() => {
+                                container.classList.remove('container-alert');
+                            }, 5000);
+                        }
+                    });
+                }
+            } catch (e) {
+                console.error("Sentry poll failed", e);
+            }
+        }
+
+        async function loadConfig() {
+            try {
+                const res = await fetch('/autonomy/config');
+                const cfg = await res.json();
+                document.getElementById('cfg-enabled').checked = cfg.enabled;
+                document.getElementById('cfg-interval').value = cfg.base_interval;
+                document.getElementById('cfg-load').value = cfg.max_load_threshold;
+            } catch (e) {
+                console.error("Config load failed", e);
+            }
+        }
+
+        async function saveConfig() {
+            const cfg = {
+                enabled: document.getElementById('cfg-enabled').checked,
+                base_interval: parseInt(document.getElementById('cfg-interval').value),
+                max_load_threshold: parseFloat(document.getElementById('cfg-load').value)
+            };
+            
+            try {
+                const res = await fetch('/autonomy/config', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(cfg)
+                });
+                const data = await res.json();
+                if (data.status === "updated") {
+                    alert("Configuration Updated. Changes will apply at next cycle.");
+                }
+            } catch (e) {
+                alert("Update failed: " + e);
+            }
+        }
+
+        // Init
+        loadConfig();
+        setInterval(updateCountdown, 1000);
+        setInterval(pollStatus, 2000); 
+        setInterval(pollSentry, 1000); // High frequency for RF Sentry
+        pollStatus(); 
+        pollSentry();
+    </script>
+<script src="http://localhost:5000/static/portal_ritual.js?v=999" defer></script>
+</body>
+</html>

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>GEMINI // ARSENAL</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/arsenal_war.css') }}">
+    <style>
+        /* Portal Styles (Standardized) */
+
+        body { background-color: #050505; color: #d0d0d0; min-height: 100vh; }
+    </style>
+</head>
+<body>
+
+    <div class="arsenal-header" style="margin-top: 60px;">
+        <h1 class="arsenal-title">WARRIOR // ARSENAL</h1>
+        <div id="status-indicator" style="color: var(--war-red); font-size: 0.8rem; font-weight: bold;">COMBAT_MODE: CHECKING...</div>
+    </div>
+
+    <div class="weapon-grid">
+        <div class="weapon-card" onclick="castSpell('Warrior', 'battle_rage.berserkers_charge.sh', ['--target', '127.0.0.1', '--force'])">
+            <div style="font-size: 1.5rem; color: #fff;">ᚦ BERSERKER</div>
+            <div style="font-size: 0.7rem; color: #888;">Heavy Attack Protocol</div>
+        </div>
+        <div class="weapon-card" onclick="castSpell('Warlock', 'destruction.ddos_simulate.py', ['--target', '127.0.0.1', '--duration', '5'])">
+            <div style="font-size: 1.5rem; color: #fff;">ᚢ STORM</div>
+            <div style="font-size: 0.7rem; color: #888;">DDoS Simulation</div>
+        </div>
+        <div class="weapon-card" onclick="castSpell('Warrior', 'passive.unseen_ward.sh', ['--force'])">
+            <div style="font-size: 1.5rem; color: #fff;">ᚱ AEGIS</div>
+            <div style="font-size: 0.7rem; color: #888;">Active Node Shield</div>
+        </div>
+    </div>
+
+    <div id="console-output" style="margin: 20px auto; max-width: 800px; background: rgba(0,0,0,0.8); border: 1px solid #333; color: #ccc; font-family: monospace; padding: 10px; height: 150px; overflow-y: auto; white-space: pre-wrap;"></div>
+
+    <div style="position: fixed; bottom: 10px; left: 20px; font-size: 0.6rem; color: var(--border-dim);">
+        PORT: 3001 // MODULE: BODY
+    </div>
+
+    <script>
+    async function updateStatus() {
+        try {
+            const res = await fetch('/api/status');
+            const data = await res.json();
+            const el = document.getElementById('status-indicator');
+            el.innerText = `COMBAT_MODE: ${data.status}`;
+            el.style.color = data.status === 'ONLINE' ? '#0f0' : 'var(--war-red)';
+        } catch (e) {
+            console.error(e);
+        }
+    }
+    
+    async function castSpell(cls, spell, args) {
+        const consoleEl = document.getElementById('console-output');
+        consoleEl.innerHTML += `> Casting ${spell}...
+`;
+        
+        try {
+            const res = await fetch('/api/cast', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({class: cls, spell: spell, args: args})
+            });
+            const data = await res.json();
+            
+            if (data.status === 'success') {
+                consoleEl.innerHTML += `[SUCCESS]
+${data.result.stdout}
+`;
+            } else {
+                consoleEl.innerHTML += `[FAILURE] ${data.message}
+`;
+                if(data.details) consoleEl.innerHTML += `${JSON.stringify(data.details)}
+`;
+            }
+        } catch (e) {
+            consoleEl.innerHTML += `[ERROR] ${e.message}
+`;
+        }
+        consoleEl.scrollTop = consoleEl.scrollHeight;
+    }
+    
+    updateStatus();
+    setInterval(updateStatus, 5000);
+    </script>
+<script src="http://localhost:5000/static/portal_ritual.js?v=999" defer></script>
+</body>
+</html>

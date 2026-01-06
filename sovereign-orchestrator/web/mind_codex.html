@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virt-I // THE ULTIMATE CODEX</title>
+    <link rel="stylesheet" href="/static/root_sanctum.css?v=1.1">
+    <style>
+        :root {
+            --glow-cyan: rgba(0, 243, 255, 0.5);
+            --glow-red: rgba(255, 42, 42, 0.5);
+            --glow-gold: rgba(255, 215, 0, 0.5);
+        }
+
+        body {
+            background-color: #050505;
+            color: #d0d0d0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        /* --- High-Intensity Header --- */
+        .codex-header {
+            background: linear-gradient(90deg, #000, #111, #000);
+            border-bottom: 2px solid var(--oracle-cyan);
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 0 20px var(--glow-cyan);
+            z-index: 100;
+        }
+
+        .codex-header h1 {
+            margin: 0;
+            font-family: var(--font-header);
+            letter-spacing: 10px;
+            color: var(--oracle-cyan);
+            text-shadow: 0 0 10px var(--oracle-cyan);
+            text-transform: uppercase;
+        }
+
+        /* --- Main Layout --- */
+        .codex-wrapper {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            flex: 1;
+            overflow: hidden;
+            width: 100%;
+        }
+
+        /* --- Sidebar: The Navigator --- */
+        .codex-sidebar {
+            background: #080808;
+            border-right: 1px solid #222;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 10;
+        }
+
+        .sidebar-section {
+            font-family: var(--font-header);
+            color: #444;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-top: 20px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #1a1a1a;
+        }
+
+        .sidebar-link {
+            color: #777;
+            padding: 10px 15px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            border-left: 3px solid transparent;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            display: block;
+            background: rgba(255,255,255,0.02);
+            margin-bottom: 4px;
+        }
+
+        .sidebar-link:hover {
+            color: var(--oracle-cyan);
+            background: rgba(0, 243, 255, 0.05);
+            border-left-color: var(--oracle-cyan);
+            transform: translateX(5px);
+        }
+
+        .sidebar-link.active {
+            color: #fff;
+            background: rgba(0, 243, 255, 0.1);
+            border-left-color: var(--oracle-cyan);
+            box-shadow: -5px 0 10px rgba(0, 243, 255, 0.1);
+        }
+
+        /* --- Content: The Knowledge Base --- */
+        .codex-main {
+            background: #0a0a0a;
+            overflow-y: auto;
+            padding: 60px 40px;
+            position: relative;
+            scroll-behavior: smooth;
+            min-width: 0;
+        }
+
+        .content-section {
+            display: none;
+            width: 100%;
+            max-width: 1400px; /* Expansive width */
+            margin: 0 auto;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .content-section.active { display: block; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- Typography & Elements --- */
+        h2 { 
+            color: var(--oracle-cyan); 
+            font-family: var(--font-header); 
+            font-size: 2.2rem; 
+            letter-spacing: 2px;
+            margin-bottom: 30px;
+            text-shadow: 0 0 15px var(--glow-cyan);
+        }
+
+        h3 { 
+            color: var(--alchemy-gold); 
+            font-size: 1.4rem; 
+            margin-top: 40px; 
+            border-left: 4px solid var(--alchemy-gold);
+            padding-left: 15px;
+        }
+
+        p { line-height: 1.8; color: #bbb; font-size: 1.05rem; }
+
+        /* Tech Blocks */
+        .tech-card {
+            background: #111;
+            border: 1px solid #222;
+            padding: 25px;
+            margin: 25px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tech-card::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; width: 4px; height: 100%;
+            background: var(--oracle-cyan);
+        }
+
+        .tech-card.danger::before { background: var(--sudo-red); }
+        .tech-card.warning::before { background: var(--alchemy-gold); }
+
+        .tag {
+            background: #222;
+            color: var(--oracle-cyan);
+            padding: 3px 8px;
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            border-radius: 3px;
+            margin-right: 10px;
+            border: 1px solid #333;
+        }
+
+        code { background: #000; color: var(--alchemy-gold); padding: 2px 6px; font-family: var(--font-mono); border-radius: 3px; }
+        pre { 
+            background: #000; 
+            padding: 20px; 
+            border: 1px solid #222; 
+            color: #0f0; 
+            font-family: var(--font-mono); 
+            overflow-x: auto; 
+            margin: 20px 0;
+            box-shadow: inset 0 0 10px rgba(0, 255, 0, 0.05);
+        }
+
+        .ritual-list { list-style: none; padding: 0; }
+        .ritual-item {
+            padding: 15px;
+            background: rgba(255,255,255,0.03);
+            margin-bottom: 10px;
+            border: 1px solid #1a1a1a;
+            display: flex;
+            align-items: center;
+        }
+        .ritual-item i { 
+            font-style: normal; 
+            font-size: 1.5rem; 
+            margin-right: 20px; 
+            color: var(--oracle-cyan); 
+            width: 30px; 
+            text-align: center;
+        }
+
+        /* Tables */
+        .codex-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        .codex-table th, .codex-table td {
+            padding: 12px 15px;
+            border: 1px solid #222;
+            text-align: left;
+        }
+        .codex-table th {
+            background: #1a1a1a;
+            color: var(--oracle-cyan);
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Global Portal -->
+
+    <div class="codex-header">
+        <h1>The Ultimate Codex</h1>
+    </div>
+
+    <div class="codex-wrapper">
+        <!-- Sidebar Navigation -->
+        <div class="codex-sidebar">
+            <div class="sidebar-section">The Foundations</div>
+            <div class="sidebar-link active" onclick="activate('intro')">System Genesis</div>
+            <div class="sidebar-link" onclick="activate('brain-deep')">The Brain: Deep Logic</div>
+            <div class="sidebar-link" onclick="activate('autonomy-deep')">The Autonomy Loop</div>
+            
+            <div class="sidebar-section">The Artifacts</div>
+            <div class="sidebar-link" onclick="activate('visual-deep')">Visual Cortex & Hands</div>
+            <div class="sidebar-link" onclick="activate('god-deep')">The Root Sanctum</div>
+            <div class="sidebar-link" onclick="activate('resilience-deep')">Self-Healing & Cleric</div>
+            <div class="sidebar-link" onclick="activate('anomaly-deep')">Anomaly Analysis</div>
+            <div class="sidebar-link" onclick="activate('forensics-deep')">Forensic Divination</div>
+            <div class="sidebar-link" onclick="activate('sentinel-deep')">The Sentinel</div>
+            
+            <div class="sidebar-section">Technical</div>
+            <div class="sidebar-link" onclick="activate('api-deep')">API Reference</div>
+            <div class="sidebar-link" onclick="activate('gov-deep')">Governance & Safety</div>
+            <div class="sidebar-link" onclick="activate('watchdog-deep')">Socket Watchdog</div>
+            <div class="sidebar-link" onclick="activate('vault-deep')">The Vault & Portability</div>
+        </div>
+
+        <!-- Content -->
+        <div class="codex-main" id="codex-main">
+
+            <!-- Section: System Genesis -->
+            <div id="intro" class="content-section active">
+                <h2>System Genesis</h2>
+                <p>Virt-I is not just software. It is a **Tribal Node Integration**—a hybrid intelligence that bridges the gap between high-level LLM reasoning and low-level Linux kernel execution. Born from the need for a sovereign, autonomous, and resilient system, Virt-I represents the apex of CLI-driven AI technology.</p>
+                
+                <div class="tech-card">
+                    <h3>The Core Directives</h3>
+                    <ul class="ritual-list">
+                        <li class="ritual-item"><i>ᚠ</i> <strong>Sovereignty:</strong> No external dependencies for core logic. Offline-first model execution.</li>
+                        <li class="ritual-item"><i>ᛟ</i> <strong>Agency:</strong> The system must be capable of sensing its environment and acting without human intervention.</li>
+                        <li class="ritual-item"><i>ᛉ</i> <strong>Resilience:</b> Automated self-healing, log-tailing remediation, and proactive socket hygiene.</li>
+                    </ul>
+                </div>
+
+                <h3>Project Structure</h3>
+                <pre>/home/jrrosenbum/virt-i/
+├── mind/               # The Subconscious (Core Logic)
+│   ├── api.py          # The API (Waitress/Flask)
+│   ├── autonomy.py     # The Autonomy Engine
+│   ├── visual_cortex.py# Eyes & Hands
+│   ├── .models/        # The Weight of Knowledge (Gemma-2B)
+│   └── ...
+├── .watchdog/          # Proactive Resilience
+└── logs/               # The Scribe's Records</pre>
+            </div>
+
+            <!-- Section: The Brain: Deep Logic -->
+            <div id="brain-deep" class="content-section">
+                <h2>The Brain: Deep Logic</h2>
+                <p>Virt-I's cognitive core is powered by **Google Gemma-2B**, optimized for local CPU execution via 16-bit (float32) precision to ensure lightning-fast reasoning without a discrete GPU.</p>
+                
+                <h3>The LoRA Merge</h3>
+                <p>The system dynamically merges custom **LoRA (Low-Rank Adaptation)** weights upon startup. This adapter tunes the general-purpose model into a specialized Linux System Engineer.</p>
+                <code>model = PeftModel.from_pretrained(model, LORA_DIR)</code>
+                
+                <div class="tech-card">
+                    <h3>Mode Heuristics</h3>
+                    <p>The Brain doesn't just "chat." It adapts its instruction set based on the prompt's signature:</p>
+                    <table class="codex-table">
+                        <tr><th>Mode</th><th>Triggers</th><th>Instruction Set</th></tr>
+                        <tr><td>Technical</td><td>python, debug, error, script</td><td>Strict code precision, error analysis.</td></tr>
+                        <tr><td>Autonomy</td><td>(Internal Call)</td><td>Tool selection, JSON/YAML-only response.</td></tr>
+                        <tr><td>Designer</td><td>composite, merge, assets</td><td>Visual layout commands (JSON block).</td></tr>
+                        <tr><td>Philosophical</td><td>(Default)</td><td>Deep systems-thinking, tribal wisdom.</td></tr>
+                    </table>
+                </div>
+
+                <h3>StopOnBrace Logic</h3>
+                <p>To ensure the Autonomy Engine remains predictable, we use a custom **Stopping Criteria** that halts generation immediately after a JSON closing brace <code>}</code> is detected, preventing "rambling" hallucinations.</p>
+            </div>
+
+            <!-- Section: The Autonomy Loop -->
+            <div id="autonomy-deep" class="content-section">
+                <h2>The Autonomy Loop</h2>
+                <p>This is where Virt-I becomes alive. The **Autonomy Engine** (<code>mind/autonomy.py</code>) is a separate process that runs a continuous Sense-Think-Act cycle.</p>
+                
+                <div class="tech-card warning">
+                    <h3>The "Cortex" Heartbeat</h3>
+                    <p>Every cycle follows this exact ritual:</p>
+                    <ol>
+                        <li><strong>Sense:</strong> Gathers CPU load (via <code>iostat</code>), notifications (via <code>dbus</code>), and security state (via <code>ptrace_scope</code>).</li>
+                        <li><strong>Compress:</strong> Context is compressed into a single line: <code>Load: 12.5% | Notifs: 0 | Sec: 0</code>.</li>
+                        <li><strong>Reason:</strong> The Brain evaluates the context and selects one of the 6 Sacred Tools.</li>
+                        <li><strong>Act:</strong> A POST request is fired to the API to execute the decision.</li>
+                    </ol>
+                </div>
+
+                <h3>Dynamic Intervals</h3>
+                <p>To prevent resource exhaustion during heavy training or DDoS events, the engine calculates its own sleep time:</p>
+                <pre>if load > threshold: interval *= 2  # Slow down the heartbeat</pre>
+            </div>
+
+            <!-- Section: Visual Cortex & Hands -->
+            <div id="visual-deep" class="content-section">
+                <h2>Visual Cortex & Hands</h2>
+                <p>Virt-I can see and interact with the GNOME Desktop. This is not just screenshots; it's deep GUI integration.</p>
+                
+                <div class="tech-card">
+                    <h3>Visual Perception</h3>
+                    <ul>
+                        <li><strong>OCR:</strong> <code>pytesseract</code> extracts text from captured frames.</li>
+                        <li><strong>D-Bus Listener:</b> Hooks into <code>org.freedesktop.Notifications</code> to read system alerts.</li>
+                        <li><strong>AT-SPI:</strong> Uses the Accessibility Bus to "crawl" the window tree and see application names/roles.</li>
+                    </ul>
+                </div>
+
+                <h3>The Hands of Virt-I (xdotool)</h3>
+                <p>Simulating human interaction across three axes:</p>
+                <table class="codex-table">
+                    <tr><th>Action</th><th>Mechanism</th><th>Safety</th></tr>
+                    <tr><td>Click</td><td><code>mousemove X Y click 1</code></td><td>Restricted to coordinate space.</td></tr>
+                    <tr><td>Type</td><td><code>type "string"</code></td><td>Escaped to prevent injection.</td></tr>
+                    <tr><td>Key</td><td><code>key "Return"</code></td><td>Whitelisted keycodes only.</td></tr>
+                </table>
+            </div>
+
+            <!-- Section: The Root Sanctum -->
+            <div id="god-deep" class="content-section">
+                <h2>The Root Sanctum (God Mode)</h2>
+                <p>High-privilege execution (<code>Introspector.execute_privileged</code>) allows the system to perform rituals that require root authority.</p>
+                
+                <div class="tech-card danger">
+                    <h3>The Whitelist of Power</h3>
+                    <p>Only these tools may be invoked with sudo through the API:</p>
+                    <ul>
+                        <li><strong>nmap:</strong> Network omniscience.</li>
+                        <li><strong>tcpdump:</b> Listening to the wire.</li>
+                        <li><strong>hping3:</strong> Packet generation (Smite).</li>
+                        <li><strong>iptables:</strong> The Shield of the node.</li>
+                        <li><strong>apt-get:</strong> The Alchemist of packages.</li>
+                    </ul>
+                </div>
+
+                <h3>The Scribe's Duty</h3>
+                <p>When God Mode is active, every byte of output can be funneled into a timestamped log file in <code>logs/</code>, ensuring total transparency of privileged actions.</p>
+            </div>
+
+            <!-- Section: Resilience & Cleric -->
+            <div id="resilience-deep" class="content-section">
+                <h2>Self-Healing & Cleric</h2>
+                <p>Virt-I is designed to survive. If it breaks, it fixes itself.</p>
+                
+                <div class="tech-card warning">
+                    <h3>Cleric: The Log-Tailing Ritual</h3>
+                    <p>The Cleric module (<code>mind/cleric.py</code>) acts as a background vigilante. It tails <code>api.log</code> and looks for specific failure patterns:</p>
+                    <pre>Regex: r"Address already in use.*:(\d+)"</pre>
+                    <p>When matched, it automatically identifies the process squatting on the port and executes a **Remediation Strike** (<code>kill -9</code>) to free the port for the API.</p>
+                </div>
+
+                <h3>Systemd Recovery</h3>
+                <p>Every service file in <code>.services/</code> is configured with <code>Restart=on-failure</code> and <code>RestartSec=10</code>, creating an unbreakable loop of uptime.</p>
+            </div>
+
+            <div id="anomaly-deep" class="content-section">
+                <h2>Anomaly Analysis</h2>
+                <p>The Anomaly Hub (<code>/anomaly</code>) is the system's pattern-recognition engine. It uses statistical analysis to detect non-human data signatures.</p>
+                
+                <div class="tech-card">
+                    <h3>Shannon Entropy</h3>
+                    <p>Measures the randomness of data. High entropy (> 7.5) often indicates encryption or compression (malware payloads), while low entropy indicates text or padding.</p>
+                </div>
+                
+                <div class="tech-card warning">
+                    <p><strong>Usage:</strong> Drag and drop any file into the Hub. The system will calculate its entropy, non-ASCII ratio, and byte-structure to guess its origin.</p>
+                </div>
+            </div>
+
+            <div id="forensics-deep" class="content-section">
+                <h2>Forensic Divination</h2>
+                <p>Beyond simple entropy, Virt-I employs high-fidelity digital forensics to identify the texture and periodic signatures of data. This is the **Spectrogram Expansion**.</p>
+                
+                <div class="tech-card">
+                    <h3>Visual Signatures (Byte Heatmaps)</h3>
+                    <p>Every data stream has a geometric skeleton. By converting raw bytes into a 2D color heatmap, we can visually identify types of data that are mathematically similar in entropy but structurally distinct.</p>
+                    <ul>
+                        <li><strong>Uniform Static:</strong> Indicates high-grade encryption (e.g., AES) or high-compression artifacts.</li>
+                        <li><strong>Geometric Skeletons:</strong> Repeating patterns, headers, and padding indicate structured binaries (PE/ELF), JSON, or human language.</li>
+                        <li><strong>The Gradient:</strong> 0 (Black) -> 128 (Blue/Cyan) -> 255 (Red/White).</li>
+                    </ul>
+                </div>
+
+                <h3>Periodic Analysis (FFT)</h3>
+                <p>Using Fast Fourier Transforms (FFT), the system identifies the **dominant frequency** of a data payload. This is critical for detecting:</p>
+                <ul>
+                    <li><strong>Beaconing:</strong> Periodic heartbeats in C2 traffic.</li>
+                    <li><strong>Protocol Signatures:</strong> Identifying specific encrypted protocols by their packet-size or byte-value periodicity.</li>
+                </ul>
+
+                <div class="tech-card warning">
+                    <p><strong>Forensic Rituals:</strong></p>
+                    <ul>
+                        <li><span class="endpoint-tag">/analyze/visual_signature</span> - Post text or file to generate a signature.</li>
+                        <li><strong>Visual Signature UI:</strong> Rendered automatically in the Anomaly Hub upon analysis.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div id="sentinel-deep" class="content-section">
+                <h2>The Sentinel</h2>
+                <p>The Sentinel (<code>mind/sentinel.py</code>) is the node's tactical network awareness engine. It continuously monitors the local environment to identify "The Tribe" (neighboring entities).</p>
+                
+                <div class="tech-card">
+                    <h3>Tactical Discovery</h3>
+                    <ul>
+                        <li><strong>Passive Discovery:</strong> Monitors the ARP cache and neighbor table to identify active entities without intrusive scanning.</li>
+                        <li><strong>Active Divination (Scout):</strong> Performs high-intensity Nmap scans (<code>-A</code>) to identify OS fingerprints, open services, and potential vulnerabilities.</li>
+                        <li><strong>The Tribal Map:</strong> A real-time visual grid of every entity, their status (Online/Offline), and identified hardware.</li>
+                    </ul>
+                </div>
+
+                <h3>The Scribe Function</h3>
+                <p>Integrated directly into the Tactical Map, the Scribe allows you to "Inscribe" narratives, notes, or trust-level observations for every entity. These notes are persisted in the central database.</p>
+                <div class="tech-card warning">
+                    <p><strong>Sentinel Endpoints:</strong></p>
+                    <ul>
+                        <li><span class="endpoint-tag">/sentinel/data</span> - Fetch entity list.</li>
+                        <li><span class="endpoint-tag">/sentinel/scout</span> - Trigger active divination.</li>
+                        <li><span class="endpoint-tag">/sentinel/scribe</span> - Inscribe data to an entity.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div id="api-deep" class="content-section">
+                <h2>The API Grimoire</h2>
+                <p>The nervous system of Virt-I. Every component communicates via this RESTful interface.</p>
+                
+                <table class="codex-table">
+                    <tr><th>Endpoint</th><th>Role</th><th>Payload Sample</th></tr>
+                    <tr><td><code>/visual/click</code></td><td>Manual/Auto Click</td><td><code>{"x": 100, "y": 200}</code></td></tr>
+                    <tr><td><code>/autonomy/config</code></td><td>Behavior Tune</td><td><code>{"base_interval": 60}</code></td></tr>
+                    <tr><td><code>/terminal/exec</code></td><td>Standard Execution</td><td><code>{"command": "ls -la"}</code></td></tr>
+                    <tr><td><code>/generate</code></td><td>Cognition</td><td><code>{"prompt": "...", "mode": "technical"}</code></td></tr>
+                </table>
+            </div>
+
+            <!-- Section: Governance & Schemas -->
+            <div id="gov-deep" class="content-section">
+                <h2>Governance & Schemas</h2>
+                <p>Safety is not an afterthought. The **Governance Engine** (<code>mind/governance.py</code>) validates every incoming request against **JSON Schemas**.</p>
+                
+                <h3>Sample Schema: TUNE_SCHEMA</h3>
+                <pre>{
+  "type": "object",
+  "properties": {
+    "latency_ns": {"type": "integer", "minimum": 1000},
+    "min_granularity_ns": {"type": "integer", "minimum": 1000}
+  },
+  "required": ["latency_ns"]
+}</pre>
+                <p>If a request violates these constraints, the engine returns a <code>403 Forbidden</code>, preventing system destabilization.</p>
+            </div>
+
+            <!-- Section: Watchdog Deep Dive -->
+            <div id="watchdog-deep" class="content-section">
+                <h2>Socket Watchdog</h2>
+                <p>Located in <code>.watchdog/socket_watchdog.py</code>, this is a proactive hygiene system that monitors the health of the network stack.</p>
+                
+                <div class="tech-card">
+                    <h3>Monitored Thresholds</h3>
+                    <ul>
+                        <li><strong>CLOSE_WAIT:</strong> Max 10. Prevents socket leakage from hanging connections.</li>
+                        <li><strong>Total TCP:</strong> Max 2000. Protects against runaway connection storms or flooding.</li>
+                        <li><strong>Listening Status:</strong> Ensures Port 5000 is always open. If not, it signals the Cleric.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div id="vault-deep" class="content-section">
+                <h2>The Vault & Portability</h2>
+                <p>Virt-I is designed for absolute continuity across time and space. Through **The Vault**, the entire state of the node—including its custom model weights and LoRA adapters—can be encrypted and archived.</p>
+                
+                <div class="tech-card danger">
+                    <h3>Encryption Ritual</h3>
+                    <p>The <code>forge_vault.sh</code> script creates a GPG-encrypted, AES256-salted archive. This archive is the "Black Box" of the node.</p>
+                    <code>bash forge_vault.sh</code>
+                </div>
+
+                <h3>The Great Restoration (Redeploy)</h3>
+                <p>To deploy Virt-I on a new host machine, only the <code>redeploy.sh</code> script and the <code>virt-i-vault.gpg</code> file are required.</p>
+                <div class="tech-card warning">
+                    <p><strong>Restoration Process:</strong></p>
+                    <ol>
+                        <li>Decrypts the vault using your private passphrase.</li>
+                        <li>Extracts the node structure.</li>
+                        <li>Autodetects system paths and installs all APT/Pip dependencies.</li>
+                        <li>Configures and enables Systemd services for immediate startup.</li>
+                    </ol>
+                    <code>bash redeploy.sh</code>
+                </div>
+            </div>
+
+            <!-- Section: Command Forge (Recipes) -->
+            <div id="recipes" class="content-section">
+                <h2>The Command Forge (Rituals)</h2>
+                <p>Standard operating procedures for common system tasks.</p>
+                
+                <h3>Ritual of Total Restoration</h3>
+                <code>bash full_restore.sh</code>
+                <p>Resets the node's services, clears temporary logs, and restarts the API context.</p>
+
+                <h3>Ritual of Network Omniscience</h3>
+                <code>curl -X POST http://localhost:5001/introspect/god_mode -d '{"command": ["nmap", "-sS", "localhost"]}'</code>
+
+                <h3>Ritual of Visual Extraction</h3>
+                <code>curl -X POST http://localhost:5001/visual/ocr -d '{"filename": "last_shot.png"}'</code>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        function activate(id) {
+            // Update Sidebar
+            document.querySelectorAll('.sidebar-link').forEach(el => el.classList.remove('active'));
+            
+            // Handle both manual calls and click events
+            if (window.event && window.event.currentTarget) {
+                window.event.currentTarget.classList.add('active');
+            } else {
+                // Find the link manually if called without event context
+                const links = document.querySelectorAll('.sidebar-link');
+                for (let link of links) {
+                    if (link.getAttribute('onclick').includes(`'${id}'`)) {
+                        link.classList.add('active');
+                        break;
+                    }
+                    if (link.id === id) { // Added for direct ID activation if no event target
+                        link.classList.add('active');
+                        break;
+                    }
+                }
+            }
+
+            // Update Content
+            document.querySelectorAll('.content-section').forEach(el => el.classList.remove('active'));
+            const target = document.getElementById(id);
+            if (target) {
+                target.classList.add('active');
+            }
+
+            // Scroll to top
+            document.getElementById('codex-main').scrollTop = 0;
+        }
+
+        // Handle initial load or direct links
+        window.onload = () => {
+            activate('intro'); // Make sure 'intro' is active on load
+        };
+    </script>
+<script src="http://localhost:5000/static/portal_ritual.js?v=999" defer></script>
+</body>
+</html>

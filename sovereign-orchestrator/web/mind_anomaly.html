@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virt-I: Anomaly Detection</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='root_sanctum.css') }}?v=1.1">
+    <style>
+        body {
+            background-color: #050505;
+            color: #d0d0d0;
+            overflow-y: auto;
+            min-height: 100vh;
+        }
+        .grid-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            padding: 20px;
+        }
+        .panel {
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid var(--neon-cyan);
+            padding: 15px;
+            border-radius: 5px;
+            max-height: 600px;
+            overflow-y: auto; /* Scrollbars for long content */
+        }
+        .full-width {
+            grid-column: span 2;
+        }
+        h2 {
+            color: var(--neon-purple);
+            border-bottom: 1px solid var(--neon-purple);
+            padding-bottom: 5px;
+        }
+        pre {
+            background: #111;
+            padding: 10px;
+            overflow-x: auto;
+            color: #0f0;
+            font-family: 'Courier New', Courier, monospace;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .drop-zone {
+            border: 2px dashed var(--neon-cyan);
+            padding: 40px;
+            text-align: center;
+            color: #aaa;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .drop-zone:hover {
+            background: rgba(0, 255, 255, 0.1);
+            color: #fff;
+        }
+        .gallery img {
+            max-width: 100%;
+            border: 1px solid #555;
+            margin-bottom: 10px;
+        }
+        .metric {
+            font-size: 1.1em;
+            margin: 8px 0;
+            font-family: var(--font-mono);
+        }
+        .metric b {
+            color: var(--neon-cyan);
+        }
+        .high-entropy { color: #ff5555; text-shadow: 0 0 5px #ff0000; }
+        .low-entropy { color: #50fa7b; }
+        .mid-entropy { color: #f1fa8c; }
+        
+        .intent-box {
+            border: 1px solid var(--neon-purple);
+            padding: 10px;
+            background: rgba(189, 147, 249, 0.1);
+            margin-top: 10px;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Global Portal -->
+
+    <div class="grid-container" style="margin-top: 60px;">
+        <!-- Scout Panel: Network Activity -->
+        <div class="panel">
+            <h2>Scout: Network Watch</h2>
+            <button onclick="runScout()">Scan Connections</button>
+            <div id="scout-output">
+                <p>Waiting for scan...</p>
+            </div>
+        </div>
+
+        <!-- Scribe Panel: Visual Evidence -->
+        <div class="panel">
+            <h2>Scribe: Visual Evidence</h2>
+            <button onclick="runScribe()">Capture Evidence</button>
+            <div id="scribe-output" class="gallery">
+                <!-- Screenshots appear here -->
+            </div>
+        </div>
+
+        <!-- Anomaly Analyzer: The Unknown -->
+        <div class="panel full-width">
+            <h2>Static Inference Engine (Multi-Layer Forensics)</h2>
+            <div class="drop-zone" id="drop-zone">
+                Drag & Drop unknown files here or Click to Paste Text
+            </div>
+            <div id="analysis-result"></div>
+        </div>
+
+        <!-- Forensic Visualizer -->
+        <div class="panel full-width" id="forensic-panel" style="display:none;">
+            <h2>Visual Signature (Byte Heatmap & FFT)</h2>
+            <div style="display: flex; gap: 30px; align-items: flex-start;">
+                <div id="signature-gallery" style="flex: 1; text-align: center;">
+                    <!-- Heatmap injected here -->
+                </div>
+                <div id="fft-result" style="flex: 1; color: var(--alchemy-gold); font-family: var(--font-mono); font-size: 1.1rem; border-left: 1px solid #333; padding-left: 20px;">
+                    <!-- FFT results injected here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function runScout() {
+            const out = document.getElementById('scout-output');
+            out.innerHTML = "<p>Scanning...</p>";
+            try {
+                const res = await fetch('/scout/scan');
+                const data = await res.json();
+                if (data.output) {
+                    out.innerHTML = `<pre>${data.output}</pre>`;
+                } else {
+                    out.innerHTML = `<p>Error: ${data.error}</p>`;
+                }
+            } catch (e) {
+                out.innerHTML = `<p>Connection Error</p>`;
+            }
+        }
+
+        async function runScribe() {
+            const out = document.getElementById('scribe-output');
+            out.innerHTML = "<p>Capturing...</p>";
+            try {
+                const res = await fetch('/visual/screenshot', { method: 'POST' });
+                const data = await res.json();
+                if (data.path) {
+                    const img = document.createElement('img');
+                    img.src = "/static/" + data.path.split('static/')[1]; // Fix path for Flask
+                    out.prepend(img);
+                } else {
+                    out.innerHTML = `<p>Capture Failed</p>`;
+                }
+            } catch (e) {
+                out.innerHTML = `<p>Connection Error</p>`;
+            }
+        }
+
+        // Anomaly Analyzer Logic
+        const dropZone = document.getElementById('drop-zone');
+        const resultDiv = document.getElementById('analysis-result');
+
+        dropZone.addEventListener('dragover', (e) => { e.preventDefault(); e.stopPropagation(); });
+        dropZone.addEventListener('drop', async (e) => {
+            e.preventDefault(); e.stopPropagation();
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                uploadAndAnalyze(files[0]);
+            }
+        });
+
+        dropZone.addEventListener('click', async () => {
+            const text = prompt("Paste unknown text/data here:");
+            if (text) analyzeText(text);
+        });
+
+        async function uploadAndAnalyze(file) {
+            const formData = new FormData();
+            formData.append('file', file);
+            resultDiv.innerHTML = "<p>Performing Deep Inference...</p>";
+            
+            const res = await fetch('/analyze/anomaly_file', { method: 'POST', body: formData });
+            const data = await res.json();
+            displayAnalysis(data, file, null);
+        }
+
+        async function analyzeText(text) {
+            resultDiv.innerHTML = "<p>Performing Deep Inference...</p>";
+            const res = await fetch('/analyze/anomaly_text', { 
+                method: 'POST', 
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({text: text})
+            });
+            const data = await res.json();
+            displayAnalysis(data, null, text);
+        }
+
+        function displayAnalysis(data, originalFile = null, originalText = null) {
+            let color = 'low-entropy';
+            if (data.entropy > 6.0) color = 'high-entropy';
+            else if (data.entropy > 4.5) color = 'mid-entropy';
+
+            resultDiv.innerHTML = `
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px;">
+                    <div>
+                        <div class="metric"><b>Shannon Entropy:</b> <span class="${color}">${data.entropy.toFixed(4)}</span></div>
+                        <div class="metric"><b>Raw Classification:</b> ${data.classification}</div>
+                        <div class="metric"><b>Structural Identity:</b> ${data.type_guess}</div>
+                    </div>
+                    <div>
+                        <div class="metric"><b>Dominant Frequency:</b> ${data.dominant_freq.toFixed(4)}</div>
+                        <div class="metric"><b>Payload Size:</b> ${data.size_bytes} bytes</div>
+                        <div class="metric"><b>High-Byte Ratio:</b> ${(data.non_ascii_ratio * 100).toFixed(2)}%</div>
+                    </div>
+                </div>
+                <div class="intent-box">
+                    <div class="metric"><b>Inferred Operational Intent:</b> ${data.intent}</div>
+                </div>
+                <h3 style="color: var(--neon-cyan); margin-top: 20px;">Human-Readable Summary</h3>
+                <pre>${data.message}</pre>
+            `;
+
+            // Fetch Visual Signature
+            fetchVisualSignature(originalFile, originalText);
+        }
+
+        async function fetchVisualSignature(file, text) {
+            const forensicPanel = document.getElementById('forensic-panel');
+            const gallery = document.getElementById('signature-gallery');
+            const fftDiv = document.getElementById('fft-result');
+            
+            forensicPanel.style.display = 'block';
+            gallery.innerHTML = "<p class='manifesting'>Rendering Signature...</p>";
+            fftDiv.innerHTML = "";
+
+            try {
+                let res;
+                if (file) {
+                    const formData = new FormData();
+                    formData.append('file', file);
+                    res = await fetch('/analyze/visual_signature', { method: 'POST', body: formData });
+                } else {
+                    res = await fetch('/analyze/visual_signature', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({ text: text })
+                    });
+                }
+
+                const data = await res.json();
+                if (data.heatmap_url) {
+                    // Extract the path after 'static/'
+                    const staticPath = data.heatmap_url.replace(/^static\//, '');
+                    gallery.innerHTML = `<img src="/static/${staticPath}" style="max-width: 100%; border: 2px solid var(--oracle-cyan); box-shadow: 0 0 20px var(--oracle-cyan);">`;
+                    fftDiv.innerHTML = `<h3>Signal Processing</h3><p>${data.fft_analysis}</p><p>Payload Size: ${data.size_bytes} bytes</p>`;
+                } else {
+                    gallery.innerHTML = "<p>Signature Failed</p>";
+                }
+            } catch (e) {
+                gallery.innerHTML = "<p>Connection Error</p>";
+            }
+        }
+    </script>
+<script src="http://localhost:5000/static/portal_ritual.js?v=999" defer></script>
+</body>
+</html>
