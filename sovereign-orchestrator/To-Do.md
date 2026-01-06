@@ -23,7 +23,7 @@
     *   Implemented Go handlers for GUI endpoints:
         *   Served embedded static GUI files. (DONE)
         *   Implemented placeholder API endpoints for the GUI to interact with the Sovereign system. (DONE)
-        *   Located & Embedded GUI Templates (HTML, CSS, JS). (DONE)
+        *   Implemented `/health` and `/terminal/sys_info` API endpoints. (DONE)
         *   Forward user inputs (from GUI chat) to me (the LLM agent). (PENDING - This will be part of implementing the /generate endpoint logic)
         *   Process my responses (LLM agent) and format them for display in the GUI. (PENDING - This will be part of implementing the /generate endpoint logic)
 7. [completed] Implement "Ghost Mode" & Self-Correction:

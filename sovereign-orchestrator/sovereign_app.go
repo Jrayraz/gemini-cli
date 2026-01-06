@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
+	"io" // Add this import
 	"os/exec"
 	"net/http"
 	"context"
@@ -347,7 +348,44 @@ func (app *SovereignApp) handleSysInfo(w http.ResponseWriter, r *http.Request) {
 
 	json.NewEncoder(w).Encode(response)
 }
-func (app *SovereignApp) handleUpload(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
+func (app *SovereignApp) handleUpload(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "POST" {
+		http.Error(w, "Only POST method is supported", http.StatusMethodNotAllowed)
+		return
+	}
+
+	// 10 MB limit for uploaded files
+	r.ParseMultipartForm(10 << 20)
+
+	file, handler, err := r.FormFile("file")
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Error retrieving file from form: %v", err), http.StatusBadRequest)
+		return
+	}
+	defer file.Close()
+
+	uploadDir := filepath.Join(app.AppDir, "uploads")
+	if err := os.MkdirAll(uploadDir, 0755); err != nil {
+		http.Error(w, fmt.Sprintf("Error creating upload directory: %v", err), http.StatusInternalServerError)
+		return
+	}
+
+	dstPath := filepath.Join(uploadDir, handler.Filename)
+	dst, err := os.Create(dstPath)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Error creating destination file: %v", err), http.StatusInternalServerError)
+		return
+	}
+	defer dst.Close()
+
+	if _, err := io.Copy(dst, file); err != nil {
+		http.Error(w, fmt.Sprintf("Error copying file content: %v", err), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]string{"filename": handler.Filename, "path": dstPath, "message": "File uploaded successfully"})
+}
 func (app *SovereignApp) handleAnalyzeCodeFile(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
 func (app *SovereignApp) handleProcessTextFile(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
 func (app *SovereignApp) handleGenerate(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
