@@ -643,3 +643,15 @@ rows, err := app.DB.Query("SELECT id, timestamp, category, key, value, context F
 	}
 	return entries, nil
 }
+
+// isUserAttached checks if a user is currently attached to the tmux session.
+func (app *SovereignApp) isUserAttached() bool {
+	// TMUX_SOCKET should eventually be configurable or dynamically determined
+	cmd := exec.Command("sudo", "-u", "sovereign", "tmux", "-S", "/home/sovereign/brain.sock", "list-clients")
+	output, err := cmd.Output()
+	if err != nil {
+		// If there's an error, or no output, it means no client is attached
+		return false
+	}
+	return strings.TrimSpace(string(output)) != ""
+}

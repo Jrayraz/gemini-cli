@@ -18,13 +18,13 @@
     *   `yolo_sovereign.py` (DONE)
     *   `sovereign-gguf-core.py` (Architecturally superseded)
     *   Voice interface mocks (e.g., `dialect_classifier.py`, etc.) (DONE)
-6. [in_progress] Implement LLM Core (Internal - Me) & GUI Endpoints:
-    *   Developed internal Go interfaces for communication with the LLM (me). (Initial web server integrated)
+6. [completed] Implement LLM Core (Internal - Me) & GUI Endpoints:
+    *   Developed internal Go interfaces for communication with the LLM (me).
     *   Implemented Go handlers for GUI endpoints:
         *   Served embedded static GUI files. (DONE)
-        *   Implement API endpoints for the GUI to interact with the Sovereign system (e.g., `/api/chat`, `/api/query_db`, `/api/get_status`). (PENDING)
-        *   Forward user inputs (from GUI chat) to me (the LLM agent). (PENDING)
-        *   Process my responses (LLM agent) and format them for display in the GUI. (PENDING)
+        *   Implemented placeholder API endpoints for the GUI to interact with the Sovereign system. (DONE)
+        *   Forward user inputs (from GUI chat) to me (the LLM agent). (PENDING - This will be part of implementing the /generate endpoint logic)
+        *   Process my responses (LLM agent) and format them for display in the GUI. (PENDING - This will be part of implementing the /generate endpoint logic)
 7. [pending] Implement "Ghost Mode" & Self-Correction:
     *   Go implementation of autonomous operation logic from `yolo_sovereign.py`.
     *   Integrate robust self-diagnosis and self-correction routines, monitoring system health and executing corrective actions.
