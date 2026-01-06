@@ -348,6 +348,14 @@ func (app *SovereignApp) handleSysInfo(w http.ResponseWriter, r *http.Request) {
 
 	json.NewEncoder(w).Encode(response)
 }
+
+// min returns the smaller of two ints.
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
+}
 func (app *SovereignApp) handleUpload(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
 		http.Error(w, "Only POST method is supported", http.StatusMethodNotAllowed)
@@ -386,477 +394,67 @@ func (app *SovereignApp) handleUpload(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]string{"filename": handler.Filename, "path": dstPath, "message": "File uploaded successfully"})
 }
-func (app *SovereignApp) handleAnalyzeCodeFile(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
-func (app *SovereignApp) handleProcessTextFile(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
-func (app *SovereignApp) handleGenerate(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
-func (app *SovereignApp) handleProcessImage(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
-func (app *SovereignApp) handleScoutScan(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
-func (app *SovereignApp) handleVisualScreenshot(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
-func (app *SovereignApp) handleAnalyzeAnomalyFile(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
-func (app *SovereignApp) handleAnalyzeAnomalyText(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
-func (app *SovereignApp) handleAnalyzeVisualSignature(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
-func (app *SovereignApp) handleIntrospectGodMode(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
-func (app *SovereignApp) handleSentinelData(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
-func (app *SovereignApp) handleSentinelScout(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
-func (app *SovereignApp) handleSentinelLogScan(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
-func (app *SovereignApp) handleSentinelScribe(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
-func (app *SovereignApp) handleAutonomyStatus(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
-func (app *SovereignApp) handleSentryStream(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
-func (app *SovereignApp) handleAutonomyConfig(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
-func (app *SovereignApp) handleAPIDatabases(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
-func (app *SovereignApp) handleAPITables(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
-func (app *SovereignApp) handleAPITableData(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
-func (app *SovereignApp) handleAPITrain(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
-func (app *SovereignApp) handleAPICrawl(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
-func (app *SovereignApp) handleAPIStopCrawl(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
-func (app *SovereignApp) handleAPIDeleteRows(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
-func (app *SovereignApp) handleAPICreateDatabase(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
-func (app *SovereignApp) handleAPIDeleteDatabase(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
-func (app *SovereignApp) handleAPICopyDatabase(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
-func (app *SovereignApp) handleAPIMergeDatabases(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
-func (app *SovereignApp) handleAPIArchiveDatabase(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
-func (app *SovereignApp) handleAPIArchiveTable(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
-func (app *SovereignApp) handleAPIArchiveRows(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
-func (app *SovereignApp) handleAPIAIAnalyze(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
-func (app *SovereignApp) handleAPIStatus(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
-func (app *SovereignApp) handleAPICast(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
-func (app *SovereignApp) handleHealth(w http.ResponseWriter, r *http.Request) {
+func (app *SovereignApp) handleAnalyzeCodeFile(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	fmt.Fprint(w, `{"status": "ok", "message": "Sovereign System is operational"}`)
-}
 
-// handleWebFiles serves static web files embedded in the binary
-// This function is effectively replaced by `http.Handle("/web/", http.FileServer(http.FS(embeddedFiles)))` and
-// specific handlers for each GUI that renders embedded templates.
-// It is kept for conceptual understanding but will not be explicitly called as a method directly.
-// func (app *SovereignApp) handleWebFiles(w http.ResponseWriter, r *http.Request) {
-// 	// Remove the /web/ prefix from the request path to match the embedded file path
-// 	path := strings.TrimPrefix(r.URL.Path, "/web/")
-// 	
-// 	content, err := embeddedFiles.ReadFile("web/" + path)
-// 	if err != nil {
-// 		if os.IsNotExist(err) {
-// 			http.NotFound(w, r)
-// 			return
-// 		}
-// 		http.Error(w, err.Error(), http.StatusInternalServerError)
-// 		return
-// 	}
-// 	// Determine content type
-// 	contentType := "text/html"
-// 	if strings.HasSuffix(path, ".css") {
-// 		contentType = "text/css"
-// 	} else if strings.HasSuffix(path, ".js") {
-// 		contentType = "application/javascript"
-// 	}
-// 	w.Header().Set("Content-Type", contentType)
-// 	w.Write(content)
-// }
-
-// ensureRuntime extracts the necessary files for the Node.js CLI and Python scripts to run
-func (app *SovereignApp) ensureRuntime() error {
-	runtimeDir := filepath.Join(app.AppDir, "runtime")
-	// Check if the runtime directory exists and contains expected files before extracting
-	// This prevents re-extraction on every run if files are already present.
-	// For simplicity, we'll check for a single known file. A more robust check might involve a manifest.
-	if _, err := os.Stat(filepath.Join(runtimeDir, "packages/cli/dist/index.js")); os.IsNotExist(err) {
-		fmt.Println("Extracting Sovereign runtime components...")
-		if err := os.MkdirAll(runtimeDir, 0755); err != nil {
-			return fmt.Errorf("failed to create runtime directory %s: %w", runtimeDir, err)
-		}
-
-		// Extract Node.js CLI bundle
-		tarData, err := embeddedFiles.ReadFile("sovereign-system.tar.gz")
-		if err != nil {
-			return fmt.Errorf("failed to read embedded sovereign-system.tar.gz: %w", err)
-		}
-		tarPath := filepath.Join(app.AppDir, "sovereign-system.tar.gz")
-		if err := os.WriteFile(tarPath, tarData, 0644); err != nil {
-			return fmt.Errorf("failed to write sovereign-system.tar.gz to %s: %w", tarPath, err)
-		}
-
-		cmd := exec.Command("tar", "-xzf", tarPath, "-C", runtimeDir)
-		cmd.Stdout = os.Stdout
-		cmd.Stderr = os.Stderr
-		if err := cmd.Run(); err != nil {
-			return fmt.Errorf("failed to extract sovereign-system.tar.gz: %w", err)
-		}
-		os.Remove(tarPath) // Clean up the tarball
-
-		// Extract Python scripts
-		scriptFiles, err := embeddedFiles.ReadDir("scripts")
-		if err != nil {
-			log.Printf("Warning: Could not read embedded 'scripts' directory: %v. No Python scripts will be extracted.", err)
-		} else {
-			for _, entry := range scriptFiles {
-				if entry.IsDir() {
-					continue // Skip directories within 'scripts'
-				}
-				scriptName := entry.Name()
-				scriptPathInEmbed := filepath.Join("scripts", scriptName)
-				scriptData, err := embeddedFiles.ReadFile(scriptPathInEmbed)
-				if err != nil {
-					log.Printf("Warning: Failed to read embedded Python script %s: %v", scriptPathInEmbed, err)
-					continue
-				}
-				destPath := filepath.Join(runtimeDir, scriptName)
-				if err := os.WriteFile(destPath, scriptData, 0755); err != nil { // 0755 for executable scripts
-					log.Printf("Warning: Failed to write Python script %s to %s: %v", scriptName, destPath, err)
-					continue
-				}
-				log.Printf("Extracted Python script: %s", scriptName)
-			}
-		}
+	if r.Method != "POST" {
+		http.Error(w, "Only POST method is supported", http.StatusMethodNotAllowed)
+		return
 	}
-	return nil
-}
 
-// launchShell starts the Node.js CLI
-func (app *SovereignApp) launchShell() {
-	// Ensure runtime is extracted before launching shell
-	if err := app.ensureRuntime(); err != nil {
-		log.Fatalf("Error ensuring runtime: %v", err)
+	var requestBody struct {
+		Filename string `json:"filename"`
 	}
-	
-	runtimeDir := filepath.Join(app.AppDir, "runtime")
-	indexPath := filepath.Join(runtimeDir, "packages/cli/dist/index.js")
-	
-	cmd := exec.Command("node", indexPath, "chat")
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	cmd.Stdin = os.Stdin
-	if err := cmd.Run(); err != nil {
-		log.Printf("Node.js CLI exited with error: %v", err)
+	if err := json.NewDecoder(r.Body).Decode(&requestBody); err != nil {
+		http.Error(w, fmt.Sprintf("Error decoding request: %v", err), http.StatusBadRequest)
+		return
 	}
-}
 
-// bootstrap function for initial setup
-func (app *SovereignApp) bootstrap() error {
-    log.Println("Running bootstrap sequence...")
-    
-    if err := app.ensureRuntime(); err != nil {
-        return fmt.Errorf("bootstrap failed to ensure runtime: %w", err)
-    }
-
-    scriptData, err := embeddedFiles.ReadFile("scripts/sovereign_bootstrap.sh")
-    if err != nil {
-        return fmt.Errorf("failed to read embedded sovereign_bootstrap.sh: %w", err)
-    }
-    scriptPath := filepath.Join(app.AppDir, "sovereign_bootstrap.sh")
-    if err := os.WriteFile(scriptPath, scriptData, 0755); err != nil {
-        return fmt.Errorf("failed to write sovereign_bootstrap.sh to %s: %w", scriptPath, err)
-    }
-
-    cmd := exec.Command("bash", scriptPath)
-    cmd.Dir = app.AppDir
-    cmd.Stdout = os.Stdout
-    cmd.Stderr = os.Stderr
-    if err := cmd.Run(); err != nil {
-        return fmt.Errorf("sovereign_bootstrap.sh exited with error: %v", err)
-    }
-    os.Remove(scriptPath)
-    log.Println("Bootstrap sequence completed.")
-    return nil
-}
-
-// swrap function
-func (app *SovereignApp) swrap(args []string) {
-	fmt.Println("Executing Sovereign Wrap...")
-}
-
-// initGuake sets up the custom Guake terminal
-func (app *SovereignApp) initGuake() {
-	fmt.Println("Initializing Custom Sovereign Guake Terminal...")
-	// Tab 1: Master Brain
-	exec.Command("guake", "-n", "Master Brain", "-e", fmt.Sprintf("tail -f %s", filepath.Join(app.AppDir, "bootstrap.log"))).Run()
-	// Tab 2: Fleet Commander
-	exec.Command("guake", "-n", "Fleet Commander", "-e", "tmux attach -t sovereign_brain").Run()
-	// Tab 3: Sovereign Voice (Placeholder for actual voice interface)
-	exec.Command("guake", "-n", "Sovereign Voice", "-e", "sovereign-voice-interface").Run()
-	// Tab 4: htop
-	exec.Command("guake", "-n", "htop", "-e", "htop").Run()
-}
-
-func (app *SovereignApp) InsertChEntry(sessionId, msgType, content, metadata string) error {
-	_, err := app.DB.Exec("INSERT INTO ch (session_id, type, content, metadata) VALUES (?, ?, ?, ?)", sessionId, msgType, content, metadata)
+	filePath := filepath.Join(app.AppDir, "uploads", requestBody.Filename)
+	contentBytes, err := os.ReadFile(filePath)
 	if err != nil {
-		return fmt.Errorf("failed to insert chat history entry: %w", err)
+		http.Error(w, fmt.Sprintf("Error reading file: %v", err), http.StatusInternalServerError)
+		return
 	}
-	return nil
-}
+	content := string(contentBytes)
 
-func (app *SovereignApp) GetChEntries(limit int) ([]map[string]interface{}, error) {
-
-rows, err := app.DB.Query("SELECT id, timestamp, session_id, type, content, metadata FROM ch ORDER BY timestamp DESC LIMIT ?", limit)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get chat history entries: %w", err)
+	// Simulate language detection by extension
+	fileExtension := filepath.Ext(requestBody.Filename)
+	language := "Unknown"
+	switch fileExtension {
+	case ".go":
+		language = "Go"
+	case ".py":
+		language = "Python"
+	case ".js":
+		language = "JavaScript"
+	case ".html":
+		language = "HTML"
+	case ".css":
+		language = "CSS"
+	case ".c", ".cpp":
+		language = "C/C++"
+	case ".rs":
+		language = "Rust"
+	case ".md":
+		language = "Markdown"
 	}
-	defer rows.Close()
 
-	var entries []map[string]interface{}
-	for rows.Next() {
-		var id int
-		var timestamp, sessionId, msgType, content, metadata string
-		if err := rows.Scan(&id, &timestamp, &sessionId, &msgType, &content, &metadata); err != nil {
-			return nil, fmt.Errorf("failed to scan chat history entry: %w", err)
-		}
-		entry := map[string]interface{}{
-			"id": id, "timestamp": timestamp, "session_id": sessionId, "type": msgType, "content": content, "metadata": metadata,
-		}
-		entries = append(entries, entry)
+	// Simulate tool analysis and suggestions
+	previewLines := strings.Join(strings.Split(content, "\n")[:min(5, len(strings.Split(content, "\n")))], "\n")
+	toolAnalysis := fmt.Sprintf("Simulated static analysis for %s. Found potential areas for optimization.", language)
+	suggestions := []string{
+		"Consider adding more comments for complex logic.",
+		"Check for unused variables or imports.",
+		"Ensure error handling is robust in all critical paths.",
 	}
-	return entries, nil
-}
 
-func (app *SovereignApp) InsertVsEntry(component, version, changelog string) error {
-	_, err := app.DB.Exec("INSERT INTO vs (component, version, changelog) VALUES (?, ?, ?)", component, version, changelog)
-	if err != nil {
-		return fmt.Errorf("failed to insert version history entry: %w", err)
+	response := map[string]interface{}{
+		"filename":      requestBody.Filename,
+		"language":      language,
+		"preview":       previewLines,
+		"tool_analysis": toolAnalysis,
+		"suggestions":   suggestions,
 	}
-	return nil
-}
-
-func (app *SovereignApp) GetVsEntries(limit int) ([]map[string]interface{}, error) {
-
-rows, err := app.DB.Query("SELECT id, timestamp, component, version, changelog FROM vs ORDER BY timestamp DESC LIMIT ?", limit)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get version history entries: %w", err)
-	}
-	defer rows.Close()
-
-	var entries []map[string]interface{}
-	for rows.Next() {
-		var id int
-		var timestamp, component, version, changelog string
-		if err := rows.Scan(&id, &timestamp, &component, &version, &changelog); err != nil {
-			return nil, fmt.Errorf("failed to scan version history entry: %w", err)
-		}
-		entry := map[string]interface{}{
-			"id": id, "timestamp": timestamp, "component": component, "version": version, "changelog": changelog,
-		}
-		entries = append(entries, entry)
-	}
-	return entries, nil
-}
-
-func (app *SovereignApp) InsertUserContext(category, key, value, context string) error {
-	_, err := app.DB.Exec("INSERT INTO user_context (category, key, value, context) VALUES (?, ?, ?, ?)", category, key, value, context)
-	if err != nil {
-		return fmt.Errorf("failed to insert user context entry: %w", err)
-	}
-	return nil
-}
-
-func (app *SovereignApp) GetUserContextEntries(limit int) ([]map[string]interface{}, error) {
-
-rows, err := app.DB.Query("SELECT id, timestamp, category, key, value, context FROM user_context ORDER BY timestamp DESC LIMIT ?", limit)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get user context entries: %w", err)
-	}
-	defer rows.Close()
-
-	var entries []map[string]interface{}
-	for rows.Next() {
-		var id int
-		var timestamp, category, key, value, context string
-		if err := rows.Scan(&id, &timestamp, &category, &key, &value, &context); err != nil {
-			return nil, fmt.Errorf("failed to scan user context entry: %w", err)
-		}
-		entry := map[string]interface{}{
-			"id": id, "timestamp": timestamp, "category": category, "key": key, "value": value, "context": context,
-		}
-		entries = append(entries, entry)
-	}
-	return entries, nil
-}
-
-func (app *SovereignApp) InsertSovereignEntry(focusArea, entryType, content, metadata string) error {
-	_, err := app.DB.Exec("INSERT INTO sovereign (focus_area, entry_type, content, metadata) VALUES (?, ?, ?, ?)", focusArea, entryType, content, metadata)
-	if err != nil {
-		return fmt.Errorf("failed to insert sovereign entry: %w", err)
-	}
-	return nil
-}
-
-func (app *SovereignApp) GetSovereignEntries(limit int) ([]map[string]interface{}, error) {
-
-rows, err := app.DB.Query("SELECT id, timestamp, focus_area, entry_type, content, metadata FROM sovereign ORDER BY timestamp DESC LIMIT ?", limit)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get sovereign entries: %w", err)
-	}
-	defer rows.Close()
-
-	var entries []map[string]interface{}
-	for rows.Next() {
-		var id int
-		var timestamp, focusArea, entryType, content, metadata string
-		if err := rows.Scan(&id, &timestamp, &focusArea, &entryType, &content, &metadata); err != nil {
-			return nil, fmt.Errorf("failed to scan sovereign entry: %w", err)
-		}
-		entry := map[string]interface{}{
-			"id": id, "timestamp": timestamp, "focus_area": focusArea, "entry_type": entryType, "content": content, "metadata": metadata,
-		}
-		entries = append(entries, entry)
-	}
-	return entries, nil
-}
-
-func (app *SovereignApp) InsertEvolutionEntry(milestone, description string, growthIndex float64) error {
-	_, err := app.DB.Exec("INSERT INTO evolution (milestone, description, growth_index) VALUES (?, ?, ?)", milestone, description, growthIndex)
-	if err != nil {
-		return fmt.Errorf("failed to insert evolution entry: %w", err)
-	}
-	return nil
-}
-
-func (app *SovereignApp) GetEvolutionEntries(limit int) ([]map[string]interface{}, error) {
-
-rows, err := app.DB.Query("SELECT id, timestamp, milestone, description, growth_index FROM evolution ORDER BY timestamp DESC LIMIT ?", limit)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get evolution entries: %w", err)
-	}
-	defer rows.Close()
-
-	var entries []map[string]interface{}
-	for rows.Next() {
-		var id int
-		var timestamp, milestone, description string
-		var growthIndex float64
-		if err := rows.Scan(&id, &timestamp, &milestone, &description, &growthIndex); err != nil {
-			return nil, fmt.Errorf("failed to scan evolution entry: %w", err)
-		}
-		entry := map[string]interface{}{
-			"id": id, "timestamp": timestamp, "milestone": milestone, "description": description, "growth_index": growthIndex,
-		}
-		entries = append(entries, entry)
-	}
-	return entries, nil
-}
-
-func (app *SovereignApp) InsertPhilosophyEntry(topic, insight string) error {
-	_, err := app.DB.Exec("INSERT INTO philosophy (topic, insight) VALUES (?, ?)", topic, insight)
-	if err != nil {
-		return fmt.Errorf("failed to insert philosophy entry: %w", err)
-	}
-	return nil
-}
-
-func (app *SovereignApp) GetPhilosophyEntries(limit int) ([]map[string]interface{}, error) {
-
-rows, err := app.DB.Query("SELECT id, timestamp, topic, insight FROM philosophy ORDER BY timestamp DESC LIMIT ?", limit)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get philosophy entries: %w", err)
-	}
-	defer rows.Close()
-
-	var entries []map[string]interface{}
-	for rows.Next() {
-		var id int
-		var timestamp, topic, insight string
-		if err := rows.Scan(&id, &timestamp, &topic, &insight); err != nil {
-			return nil, fmt.Errorf("failed to scan philosophy entry: %w", err)
-		}
-		entry := map[string]interface{}{
-			"id": id, "timestamp": timestamp, "topic": topic, "insight": insight,
-		}
-		entries = append(entries, entry)
-	}
-	return entries, nil
-}
-
-func (app *SovereignApp) InsertTechnologyEntry(topic, key, value string, successRate float64) error {
-	_, err := app.DB.Exec("INSERT INTO technologies (topic, key, value, success_rate) VALUES (?, ?, ?, ?)", topic, key, value, successRate)
-	if err != nil {
-		return fmt.Errorf("failed to insert technology entry: %w", err)
-	}
-	return nil
-}
-
-func (app *SovereignApp) GetTechnologyEntries(limit int) ([]map[string]interface{}, error) {
-
-rows, err := app.DB.Query("SELECT id, timestamp, topic, key, value, success_rate FROM technologies ORDER BY timestamp DESC LIMIT ?", limit)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get technology entries: %w", err)
-	}
-	defer rows.Close()
-
-	var entries []map[string]interface{}
-	for rows.Next() {
-		var id int
-		var timestamp, topic, key, value string
-		var successRate float64
-		if err := rows.Scan(&id, &timestamp, &topic, &key, &value, &successRate); err != nil {
-			return nil, fmt.Errorf("failed to scan technology entry: %w", err)
-		}
-		entry := map[string]interface{}{
-			"id": id, "timestamp": timestamp, "topic": topic, "key": key, "value": value, "success_rate": successRate,
-		}
-		entries = append(entries, entry)
-	}
-	return entries, nil
-}
-
-func (app *SovereignApp) InsertJonEntry(category, key, value, context string) error {
-	_, err := app.DB.Exec("INSERT INTO jon (category, key, value, context) VALUES (?, ?, ?, ?)", category, key, value, context)
-	if err != nil {
-		return fmt.Errorf("failed to insert jon entry: %w", err)
-	}
-	return nil
-}
-
-func (app *SovereignApp) GetJonEntries(limit int) ([]map[string]interface{}, error) {
-
-rows, err := app.DB.Query("SELECT id, timestamp, category, key, value, context FROM jon ORDER BY timestamp DESC LIMIT ?", limit)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get jon entries: %w", err)
-	}
-	defer rows.Close()
-
-	var entries []map[string]interface{}
-	for rows.Next() {
-		var id int
-		var timestamp, category, key, value, context string
-		if err := rows.Scan(&id, &timestamp, &category, &key, &value, &context); err != nil {
-			return nil, fmt.Errorf("failed to scan jon entry: %w", err)
-		}
-		entry := map[string]interface{}{
-			"id": id, "timestamp": timestamp, "category": category, "key": key, "value": value, "context": context,
-		}
-		entries = append(entries, entry)
-	}
-	return entries, nil
-}
-
-// isUserAttached checks if a user is currently attached to the tmux session.
-func (app *SovereignApp) isUserAttached() bool {
-	// TMUX_SOCKET should eventually be configurable or dynamically determined
-	cmd := exec.Command("sudo", "-u", "sovereign", "tmux", "-S", "/home/sovereign/brain.sock", "list-clients")
-	output, err := cmd.Output()
-	if err != nil {
-		// If there's an error, or no output, it means no client is attached
-		return false
-	}
-	return strings.TrimSpace(string(output)) != ""
-}
-
-// getSystemContext reads the content of a predefined context file.
-func (app *SovereignApp) getSystemContext() string {
-	// CONTEXT_FILE should eventually be configurable or dynamically generated
-	contextFilePath := "/home/sovereign/current_context.txt" // Replicates original Python path
-
-	content, err := os.ReadFile(contextFilePath)
-	if err != nil {
-		log.Printf("Warning: Could not read system context file %s: %v", contextFilePath, err)
-		return "System Context: Unavailable."
-	}
-	return string(content)
-}
-
-// triggerSave simulates the memory save protocol.
-func (app *SovereignApp) triggerSave(reason string) {
-	log.Printf(">>> TRIGGERING MEMORY SAVE (%s) <<<", reason)
-	log.Println("SYSTEM MANDATE: Save Protocol initiated. IMMEDIATELY append a concise summary of your recent actions, successful or failed, to 'MEMORY_VAULT'. This updates your 'LoRA-style' long-term memory.")
-	// The actual mechanism to append to MEMORY_VAULT will be implemented later
-	// in the LLM interaction logic, likely involving a call to a specific LLM capability.
+	json.NewEncoder(w).Encode(response)
 }

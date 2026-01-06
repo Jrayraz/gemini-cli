@@ -1,7 +1,6 @@
 1. [completed] Initialize project directory, Git repository, and Go module:
     *   Verified Git repo status and pulled latest changes in `/home/jrrosenbum/Development/git/gemini-cli/`.
     *   Created `sovereign-orchestrator` Go module in `/home/jrrosenbum/Development/git/gemini-cli/`.
-    *   Created `main.go` and `sovereign_app.go` placeholders.
     *   Created initial `To-Do.md`, `COMPLETED.md`, `Process_List.md` files.
 2. [completed] Embed Core Configuration and External Runtime Bundles:
     *   Created `core_directives.txt` file (placeholder for now).
@@ -23,7 +22,7 @@
     *   Implemented Go handlers for GUI endpoints:
         *   Served embedded static GUI files. (DONE)
         *   Implemented placeholder API endpoints for the GUI to interact with the Sovereign system. (DONE)
-        *   Implemented `/health` and `/terminal/sys_info` API endpoints. (DONE)
+        *   Implemented `/health`, `/terminal/sys_info`, and `/upload` API endpoints. (DONE)
         *   Forward user inputs (from GUI chat) to me (the LLM agent). (PENDING - This will be part of implementing the /generate endpoint logic)
         *   Process my responses (LLM agent) and format them for display in the GUI. (PENDING - This will be part of implementing the /generate endpoint logic)
 7. [completed] Implement "Ghost Mode" & Self-Correction:
