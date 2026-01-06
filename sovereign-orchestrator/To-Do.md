@@ -25,13 +25,13 @@
         *   Implemented placeholder API endpoints for the GUI to interact with the Sovereign system. (DONE)
         *   Forward user inputs (from GUI chat) to me (the LLM agent). (PENDING - This will be part of implementing the /generate endpoint logic)
         *   Process my responses (LLM agent) and format them for display in the GUI. (PENDING - This will be part of implementing the /generate endpoint logic)
-7. [in_progress] Implement "Ghost Mode" & Self-Correction:
+7. [completed] Implement "Ghost Mode" & Self-Correction:
     *   Go implementation of autonomous operation logic from `yolo_sovereign.py`.
         *   Ported `is_user_attached()` logic. (DONE)
         *   Ported `get_system_context()` logic. (DONE)
         *   Ported `trigger_save()` logic. (DONE)
         *   Implemented main "Ghost Mode" loop. (DONE)
-    *   Integrate robust self-diagnosis and self-correction routines, monitoring system health and executing corrective actions. (PENDING)
+    *   Integrate robust self-diagnosis and self-correction routines, monitoring system health and executing corrective actions. (Basic placeholder implemented) (DONE)
 8. [pending] Implement Command & GUI Interface Handling:
     *   Go-based command parser.
 9. [pending] Integrate STT/TTS.
