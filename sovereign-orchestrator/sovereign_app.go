@@ -9,8 +9,14 @@ import (
 	"strings"
 	"time"
 	"os/exec"
-	"net/http" // Add this import
-	"context" // Add this import
+	"net/http"
+	"context"
+	"encoding/json" // Add this import
+
+	"github.com/shirou/gopsutil/v3/cpu" // Add this import
+	"github.com/shirou/gopsutil/v3/mem" // Add this import
+	"github.com/shirou/gopsutil/v3/host" // Add this import
+
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -306,7 +312,41 @@ func (app *SovereignApp) setupAPIRoutes() {
 }
 
 // Placeholder Handlers (to be implemented)
-func (app *SovereignApp) handleSysInfo(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
+func (app *SovereignApp) handleSysInfo(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	// Get CPU info
+	cpuPercents, err := cpu.Percent(time.Second, false)
+	cpuInfo := "N/A"
+	if err == nil && len(cpuPercents) > 0 {
+		cpuInfo = fmt.Sprintf("%.1f%%", cpuPercents[0])
+	}
+
+	// Get RAM info
+	vmStat, err := mem.VirtualMemory()
+	ramInfo := "N/A"
+	if err == nil {
+		ramInfo = fmt.Sprintf("%.1f%%", vmStat.UsedPercent)
+	}
+
+	// Get Host info
+	hostStat, err := host.Info()
+	osInfo := "N/A"
+	uptimeInfo := "N/A"
+	if err == nil {
+		osInfo = fmt.Sprintf("%s %s", hostStat.OS, hostStat.PlatformVersion)
+		uptimeInfo = (time.Duration(hostStat.Uptime) * time.Second).String()
+	}
+
+	response := map[string]string{
+		"cpu":    cpuInfo,
+		"ram":    ramInfo,
+		"os":     osInfo,
+		"uptime": uptimeInfo,
+	}
+
+	json.NewEncoder(w).Encode(response)
+}
 func (app *SovereignApp) handleUpload(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
 func (app *SovereignApp) handleAnalyzeCodeFile(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
 func (app *SovereignApp) handleProcessTextFile(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
@@ -342,7 +382,11 @@ func (app *SovereignApp) handleAPIArchiveRows(w http.ResponseWriter, r *http.Req
 func (app *SovereignApp) handleAPIAIAnalyze(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
 func (app *SovereignApp) handleAPIStatus(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
 func (app *SovereignApp) handleAPICast(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
-func (app *SovereignApp) handleHealth(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
+func (app *SovereignApp) handleHealth(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	fmt.Fprint(w, `{"status": "ok", "message": "Sovereign System is operational"}`)
+}
 
 // handleWebFiles serves static web files embedded in the binary
 // This function is effectively replaced by `http.Handle("/web/", http.FileServer(http.FS(embeddedFiles)))` and
