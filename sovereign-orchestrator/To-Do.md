@@ -28,6 +28,8 @@
 7. [in_progress] Implement "Ghost Mode" & Self-Correction:
     *   Go implementation of autonomous operation logic from `yolo_sovereign.py`.
         *   Ported `is_user_attached()` logic. (DONE)
+        *   Ported `get_system_context()` logic. (DONE)
+        *   Ported `trigger_save()` logic. (DONE)
     *   Integrate robust self-diagnosis and self-correction routines, monitoring system health and executing corrective actions. (PENDING)
 8. [pending] Implement Command & GUI Interface Handling:
     *   Go-based command parser.

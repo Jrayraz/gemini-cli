@@ -10,8 +10,16 @@ import (
 	"time"
 	"os/exec"
 	"net/http" // Add this import
+	"context" // Add this import
 
 	_ "github.com/mattn/go-sqlite3"
+)
+
+const (
+	appName    = "sovereign"
+	dbFileName = "sovereign_memory.db"
+	SAVE_INTERVAL = 20 * time.Minute // 20 minutes for memory saves
+	GHOST_MODE_SLEEP_INTERVAL = 5 * time.Second // How often Ghost Mode checks
 )
 
 // SovereignApp holds the application's configuration and state
@@ -19,6 +27,8 @@ type SovereignApp struct {
 	AppDir   string
 	DBPath   string
 	DB       *sql.DB
+	ctx      context.Context
+	cancel   context.CancelFunc
 }
 
 // NewSovereignApp initializes a new SovereignApp instance
@@ -39,9 +49,13 @@ func NewSovereignApp(customDBPath string) (*SovereignApp, error) {
 		log.Printf("Using custom database path: %s", dbPath)
 	}
 
+	ctx, cancel := context.WithCancel(context.Background())
+
 	app := &SovereignApp{
 		AppDir: appDir,
 		DBPath: dbPath,
+		ctx:    ctx,
+		cancel: cancel,
 	}
 
 	return app, nil
@@ -63,6 +77,10 @@ func (app *SovereignApp) Init() error {
 	}
 
 	log.Println("Sovereign App initialized successfully.")
+	
+	// Start Ghost Mode as a goroutine
+	go app.startGhostMode()
+
 	return nil
 }
 
@@ -130,8 +148,76 @@ func (app *SovereignApp) initDB() error {
 	return nil
 }
 
-// Close closes the database connection
+// triggerSave simulates the memory save protocol.
+func (app *SovereignApp) triggerSave(reason string) {
+	log.Printf(">>> TRIGGERING MEMORY SAVE (%s) <<<", reason)
+	log.Println("SYSTEM MANDATE: Save Protocol initiated. IMMEDIATELY append a concise summary of your recent actions, successful or failed, to 'MEMORY_VAULT'. This updates your 'LoRA-style' long-term memory.")
+	// The actual mechanism to append to MEMORY_VAULT will be implemented later
+	// in the LLM interaction logic, likely involving a call to a specific LLM capability.
+}
+
+// startGhostMode runs the autonomous operation loop
+func (app *SovereignApp) startGhostMode() {
+	log.Println("--- SOVEREIGN ORCHESTRATOR V5 (AUTONOMOUS) INITIALIZED ---")
+
+	lastSaveTime := time.Now()
+	wasAttached := app.isUserAttached() // Initial check
+
+	for {
+		select {
+		case <-app.ctx.Done():
+			log.Println("Ghost Mode stopped.")
+			return
+		case <-time.After(GHOST_MODE_SLEEP_INTERVAL):
+			userIsHere := app.isUserAttached()
+			currentTime := time.Now()
+
+			if userIsHere {
+				if !wasAttached {
+					// Just connected
+					app.triggerSave("User Connected")
+					log.Println("\n\n>>> USER DETECTED. AUTONOMY PAUSED. <<<")
+					// Send notification to LLM (me) or interface
+					// For now, just log
+				}
+				wasAttached = true
+				// While user is attached, sleep longer or just wait.
+				// For now, continue loop but don't perform autonomous actions.
+				time.Sleep(GHOST_MODE_SLEEP_INTERVAL * 2) // Longer sleep while user is present
+			} else {
+				// GHOST MODE
+				if wasAttached {
+					// User just left
+					app.triggerSave("User Detached")
+					log.Println("\n\n>>> USER LEFT. RESUMING AUTONOMY... <<<")
+					// Send notification to LLM (me)
+				}
+				wasAttached = false
+
+				if currentTime.Sub(lastSaveTime) > SAVE_INTERVAL {
+					app.triggerSave("Periodic")
+					lastSaveTime = currentTime
+				}
+
+				// Perform autonomous actions here (e.g., get context, generate command)
+				contextData := app.getSystemContext()
+				_ = contextData // Use contextData (will be fed to LLM later)
+				// log.Printf("Ghost Mode: Sensing environment. Context: %s", contextData)
+				// Placeholder for LLM interaction:
+				// prompt := app.generateAutonomousPrompt(contextData)
+				// app.sendPromptToLLM(prompt)
+
+				log.Println("Ghost Mode: Performing autonomous actions... (Placeholder)")
+			}
+		}
+	}
+}
+
 func (app *SovereignApp) Close() error {
+	// Signal to stop any running goroutines
+	if app.cancel != nil {
+		app.cancel()
+	}
 	if app.DB != nil {
 		return app.DB.Close()
 	}
@@ -667,4 +753,12 @@ func (app *SovereignApp) getSystemContext() string {
 		return "System Context: Unavailable."
 	}
 	return string(content)
+}
+
+// triggerSave simulates the memory save protocol.
+func (app *SovereignApp) triggerSave(reason string) {
+	log.Printf(">>> TRIGGERING MEMORY SAVE (%s) <<<", reason)
+	log.Println("SYSTEM MANDATE: Save Protocol initiated. IMMEDIATELY append a concise summary of your recent actions, successful or failed, to 'MEMORY_VAULT'. This updates your 'LoRA-style' long-term memory.")
+	// The actual mechanism to append to MEMORY_VAULT will be implemented later
+	// in the LLM interaction logic, likely involving a call to a specific LLM capability.
 }
