@@ -7,9 +7,9 @@
     *   Created `core_directives.txt` file (placeholder for now).
     *   Created `scripts` directory for Python scripts.
     *   Placed `sovereign-system.tar.gz` (placeholder).
-3. [pending] Implement Robust SQLite DB Manager (Go) with Evolution & Migration:
-    *   Add schema migration capabilities to `initDB` in `sovereign_app.go`.
-    *   Implement an option/flag for using an existing `sovereign_memory.db`.
+3. [completed] Implement Robust SQLite DB Manager (Go) with Evolution & Migration:
+    *   Added schema migration capabilities to `initDB` in `sovereign_app.go`.
+    *   Implemented an option/flag for using an existing `sovereign_memory.db`.
 4. [pending] Set up Runtime Extraction:
     *   Refine `ensureRuntime` in `sovereign_app.go` to handle Python scripts and Node.js CLI extraction to `~/.sovereign/runtime`.
     *   Ensure correct permissions and executable flags are set.

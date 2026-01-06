@@ -144,15 +144,19 @@ func (app *SovereignApp) Run() {
 	app.launchShell()
 }
 
-// ensureRuntime extracts the necessary files for the Node.js CLI to run
+// ensureRuntime extracts the necessary files for the Node.js CLI and Python scripts to run
 func (app *SovereignApp) ensureRuntime() error {
 	runtimeDir := filepath.Join(app.AppDir, "runtime")
-	if _, err := os.Stat(runtimeDir); os.IsNotExist(err) {
+	// Check if the runtime directory exists and contains expected files before extracting
+	// This prevents re-extraction on every run if files are already present.
+	// For simplicity, we'll check for a single known file. A more robust check might involve a manifest.
+	if _, err := os.Stat(filepath.Join(runtimeDir, "packages/cli/dist/index.js")); os.IsNotExist(err) {
 		fmt.Println("Extracting Sovereign runtime components...")
 		if err := os.MkdirAll(runtimeDir, 0755); err != nil {
 			return fmt.Errorf("failed to create runtime directory %s: %w", runtimeDir, err)
 		}
 
+		// Extract Node.js CLI bundle
 		tarData, err := embeddedFiles.ReadFile("sovereign-system.tar.gz")
 		if err != nil {
 			return fmt.Errorf("failed to read embedded sovereign-system.tar.gz: %w", err)
@@ -169,6 +173,31 @@ func (app *SovereignApp) ensureRuntime() error {
 			return fmt.Errorf("failed to extract sovereign-system.tar.gz: %w", err)
 		}
 		os.Remove(tarPath) // Clean up the tarball
+
+		// Extract Python scripts
+		scriptFiles, err := embeddedFiles.ReadDir("scripts")
+		if err != nil {
+			log.Printf("Warning: Could not read embedded 'scripts' directory: %v. No Python scripts will be extracted.", err)
+		} else {
+			for _, entry := range scriptFiles {
+				if entry.IsDir() {
+					continue // Skip directories within 'scripts'
+				}
+				scriptName := entry.Name()
+				scriptPathInEmbed := filepath.Join("scripts", scriptName)
+				scriptData, err := embeddedFiles.ReadFile(scriptPathInEmbed)
+				if err != nil {
+					log.Printf("Warning: Failed to read embedded Python script %s: %v", scriptPathInEmbed, err)
+					continue
+				}
+				destPath := filepath.Join(runtimeDir, scriptName)
+				if err := os.WriteFile(destPath, scriptData, 0755); err != nil { // 0755 for executable scripts
+					log.Printf("Warning: Failed to write Python script %s to %s: %v", scriptName, destPath, err)
+					continue
+				}
+				log.Printf("Extracted Python script: %s", scriptName)
+			}
+		}
 	}
 	return nil
 }
