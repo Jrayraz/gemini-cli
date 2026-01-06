@@ -146,13 +146,48 @@ func (app *SovereignApp) Run() {
 	// app.launchShell() // This is now typically handled via GUI or specific commands
 	
 	// Setup HTTP server
+	http.Handle("/web/", http.FileServer(http.FS(embeddedFiles)))
+	
+	// Redirect root to a default GUI entry point
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/" {
+			http.Redirect(w, r, "/web/nexus_index.html", http.StatusFound) // Default GUI
+			return
+		}
 		fmt.Fprintf(w, "Sovereign System API is running. Access GUIs via specific paths.")
 	})
 
 	log.Println("Starting HTTP server on :8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
+
+// handleWebFiles serves static web files embedded in the binary
+// This function is effectively replaced by `http.Handle("/web/", http.FileServer(http.FS(embeddedFiles)))` and
+// specific handlers for each GUI that renders embedded templates.
+// It is kept for conceptual understanding but will not be explicitly called as a method directly.
+// func (app *SovereignApp) handleWebFiles(w http.ResponseWriter, r *http.Request) {
+// 	// Remove the /web/ prefix from the request path to match the embedded file path
+// 	path := strings.TrimPrefix(r.URL.Path, "/web/")
+// 	
+// 	content, err := embeddedFiles.ReadFile("web/" + path)
+// 	if err != nil {
+// 		if os.IsNotExist(err) {
+// 			http.NotFound(w, r)
+// 			return
+// 		}
+// 		http.Error(w, err.Error(), http.StatusInternalServerError)
+// 		return
+// 	}
+// 	// Determine content type
+// 	contentType := "text/html"
+// 	if strings.HasSuffix(path, ".css") {
+// 		contentType = "text/css"
+// 	} else if strings.HasSuffix(path, ".js") {
+// 		contentType = "application/javascript"
+// 	}
+// 	w.Header().Set("Content-Type", contentType)
+// 	w.Write(content)
+// }
 
 // ensureRuntime extracts the necessary files for the Node.js CLI and Python scripts to run
 func (app *SovereignApp) ensureRuntime() error {
