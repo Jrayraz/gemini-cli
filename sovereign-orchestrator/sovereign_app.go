@@ -142,24 +142,105 @@ func (app *SovereignApp) Close() error {
 func (app *SovereignApp) Run() {
 	fmt.Println("Sovereign System is up and running.")
 	
-	// Temporarily move launchShell to bootstrap or a specific command if needed
-	// app.launchShell() // This is now typically handled via GUI or specific commands
-	
 	// Setup HTTP server
 	http.Handle("/web/", http.FileServer(http.FS(embeddedFiles)))
 	
-	// Redirect root to a default GUI entry point
+	app.setupAPIRoutes() // Call the method to set up API routes
+
+	log.Println("Starting HTTP server on :8080")
+	log.Fatal(http.ListenAndServe(":8080", nil))
+}
+
+// setupAPIRoutes configures all API endpoints
+func (app *SovereignApp) setupAPIRoutes() {
+	// API Endpoints
+	http.HandleFunc("/terminal/sys_info", app.handleSysInfo)
+	http.HandleFunc("/upload", app.handleUpload)
+	http.HandleFunc("/analyze_code_file", app.handleAnalyzeCodeFile)
+	http.HandleFunc("/process_text_file", app.handleProcessTextFile)
+	http.HandleFunc("/generate", app.handleGenerate)
+	http.HandleFunc("/process_image", app.handleProcessImage)
+	http.HandleFunc("/scout/scan", app.handleScoutScan)
+	http.HandleFunc("/visual/screenshot", app.handleVisualScreenshot)
+	http.HandleFunc("/analyze/anomaly_file", app.handleAnalyzeAnomalyFile)
+	http.HandleFunc("/analyze/anomaly_text", app.handleAnalyzeAnomalyText)
+	http.HandleFunc("/analyze/visual_signature", app.handleAnalyzeVisualSignature)
+	http.HandleFunc("/introspect/god_mode", app.handleIntrospectGodMode)
+	http.HandleFunc("/sentinel/data", app.handleSentinelData)
+	http.HandleFunc("/sentinel/scout", app.handleSentinelScout)
+	http.HandleFunc("/sentinel/log_scan", app.handleSentinelLogScan)
+	http.HandleFunc("/sentinel/scribe", app.handleSentinelScribe)
+	http.HandleFunc("/autonomy/status", app.handleAutonomyStatus)
+	http.HandleFunc("/sentry/stream", app.handleSentryStream)
+	http.HandleFunc("/autonomy/config", app.handleAutonomyConfig) // Handle both GET and POST in this handler
+	http.HandleFunc("/api/databases", app.handleAPIDatabases)
+	http.HandleFunc("/api/tables", app.handleAPITables)
+	http.HandleFunc("/api/table_data", app.handleAPITableData)
+	http.HandleFunc("/api/train", app.handleAPITrain)
+	http.HandleFunc("/api/crawl", app.handleAPICrawl)
+	http.HandleFunc("/api/stop_crawl", app.handleAPIStopCrawl)
+	http.HandleFunc("/api/delete_rows", app.handleAPIDeleteRows)
+	http.HandleFunc("/api/create_database", app.handleAPICreateDatabase)
+	http.HandleFunc("/api/delete_database", app.handleAPIDeleteDatabase)
+	http.HandleFunc("/api/copy_database", app.handleAPICopyDatabase)
+	http.HandleFunc("/api/merge_databases", app.handleAPIMergeDatabases)
+	http.HandleFunc("/api/archive_database", app.handleAPIArchiveDatabase)
+	http.HandleFunc("/api/archive_table", app.handleAPIArchiveTable)
+	http.HandleFunc("/api/archive_rows", app.handleAPIArchiveRows)
+	http.HandleFunc("/api/ai_analyze", app.handleAPIAIAnalyze)
+	http.HandleFunc("/api/status", app.handleAPIStatus)
+	http.HandleFunc("/api/cast", app.handleAPICast)
+	http.HandleFunc("/health", app.handleHealth)
+	
+	// Redirect root to a default GUI entry point - keep this last
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path == "/" {
 			http.Redirect(w, r, "/web/nexus_index.html", http.StatusFound) // Default GUI
 			return
 		}
+		// Fallback for any other unhandled paths
 		fmt.Fprintf(w, "Sovereign System API is running. Access GUIs via specific paths.")
 	})
-
-	log.Println("Starting HTTP server on :8080")
-	log.Fatal(http.ListenAndServe(":8080", nil))
 }
+
+// Placeholder Handlers (to be implemented)
+func (app *SovereignApp) handleSysInfo(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
+func (app *SovereignApp) handleUpload(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
+func (app *SovereignApp) handleAnalyzeCodeFile(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
+func (app *SovereignApp) handleProcessTextFile(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
+func (app *SovereignApp) handleGenerate(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
+func (app *SovereignApp) handleProcessImage(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
+func (app *SovereignApp) handleScoutScan(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
+func (app *SovereignApp) handleVisualScreenshot(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
+func (app *SovereignApp) handleAnalyzeAnomalyFile(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
+func (app *SovereignApp) handleAnalyzeAnomalyText(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
+func (app *SovereignApp) handleAnalyzeVisualSignature(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
+func (app *SovereignApp) handleIntrospectGodMode(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
+func (app *SovereignApp) handleSentinelData(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
+func (app *SovereignApp) handleSentinelScout(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
+func (app *SovereignApp) handleSentinelLogScan(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
+func (app *SovereignApp) handleSentinelScribe(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
+func (app *SovereignApp) handleAutonomyStatus(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
+func (app *SovereignApp) handleSentryStream(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
+func (app *SovereignApp) handleAutonomyConfig(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
+func (app *SovereignApp) handleAPIDatabases(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
+func (app *SovereignApp) handleAPITables(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
+func (app *SovereignApp) handleAPITableData(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
+func (app *SovereignApp) handleAPITrain(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
+func (app *SovereignApp) handleAPICrawl(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
+func (app *SovereignApp) handleAPIStopCrawl(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
+func (app *SovereignApp) handleAPIDeleteRows(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
+func (app *SovereignApp) handleAPICreateDatabase(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
+func (app *SovereignApp) handleAPIDeleteDatabase(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
+func (app *SovereignApp) handleAPICopyDatabase(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
+func (app *SovereignApp) handleAPIMergeDatabases(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
+func (app *SovereignApp) handleAPIArchiveDatabase(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
+func (app *SovereignApp) handleAPIArchiveTable(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
+func (app *SovereignApp) handleAPIArchiveRows(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
+func (app *SovereignApp) handleAPIAIAnalyze(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
+func (app *SovereignApp) handleAPIStatus(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
+func (app *SovereignApp) handleAPICast(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
+func (app *SovereignApp) handleHealth(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
 
 // handleWebFiles serves static web files embedded in the binary
 // This function is effectively replaced by `http.Handle("/web/", http.FileServer(http.FS(embeddedFiles)))` and
