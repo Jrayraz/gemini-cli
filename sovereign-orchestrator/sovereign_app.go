@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 	"os/exec"
+	"net/http" // Add this import
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -137,11 +138,20 @@ func (app *SovereignApp) Close() error {
 	return nil
 }
 
-// Run starts the main application loop
+// Run starts the main application loop and HTTP server
 func (app *SovereignApp) Run() {
 	fmt.Println("Sovereign System is up and running.")
-	// Placeholder for main application loop
-	app.launchShell()
+	
+	// Temporarily move launchShell to bootstrap or a specific command if needed
+	// app.launchShell() // This is now typically handled via GUI or specific commands
+	
+	// Setup HTTP server
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintf(w, "Sovereign System API is running. Access GUIs via specific paths.")
+	})
+
+	log.Println("Starting HTTP server on :8080")
+	log.Fatal(http.ListenAndServe(":8080", nil))
 }
 
 // ensureRuntime extracts the necessary files for the Node.js CLI and Python scripts to run

@@ -13,11 +13,11 @@
 4. [completed] Set up Runtime Extraction:
     *   Refined `ensureRuntime` in `sovereign_app.go` to handle Python scripts and Node.js CLI extraction to `~/.sovereign/runtime`.
     *   Ensured correct permissions and executable flags are set.
-5. [in_progress] Embed critical Python scripts into Go binary. (This will require getting the actual content of the Python files.)
+5. [completed] Embed critical Python scripts into Go binary. (This will require getting the actual content of the Python files.)
     *   `memory_daemon.py` (DONE)
-    *   `yolo_sovereign.py` (BLOCKED - file not found, awaiting user input)
-    *   `sovereign-gguf-core.py`
-    *   Voice interface mocks (e.g., `dialect_classifier.py`, etc.)
+    *   `yolo_sovereign.py` (DONE)
+    *   `sovereign-gguf-core.py` (Architecturally superseded)
+    *   Voice interface mocks (e.g., `dialect_classifier.py`, etc.) (DONE)
 6. [pending] Implement LLM Core (Internal - Me) & GUI Endpoints:
     *   Develop internal Go interfaces for communication with the LLM (me).
     *   Implement Go handlers for GUI endpoints, serving templates from:
