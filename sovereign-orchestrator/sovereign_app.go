@@ -8,15 +8,15 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
-	"io" // Add this import
+	"io"
 	"os/exec"
 	"net/http"
 	"context"
-	"encoding/json" // Add this import
+	"encoding/json"
 
-	"github.com/shirou/gopsutil/v3/cpu" // Add this import
-	"github.com/shirou/gopsutil/v3/mem" // Add this import
-	"github.com/shirou/gopsutil/v3/host" // Add this import
+	"github.com/shirou/gopsutil/v3/cpu"
+	"github.com/shirou/gopsutil/v3/mem"
+	"github.com/shirou/gopsutil/v3/host"
 
 
 	_ "github.com/mattn/go-sqlite3"
@@ -25,8 +25,8 @@ import (
 const (
 	appName    = "sovereign"
 	dbFileName = "sovereign_memory.db"
-	SAVE_INTERVAL = 20 * time.Minute // 20 minutes for memory saves
-	GHOST_MODE_SLEEP_INTERVAL = 5 * time.Second // How often Ghost Mode checks
+	SAVE_INTERVAL = 20 * time.Minute 
+	GHOST_MODE_SLEEP_INTERVAL = 5 * time.Second 
 )
 
 // SovereignApp holds the application's configuration and state
@@ -442,8 +442,9 @@ func (app *SovereignApp) handleAnalyzeCodeFile(w http.ResponseWriter, r *http.Re
 
 	// Simulate tool analysis and suggestions
 	previewLines := strings.Join(strings.Split(content, "\n")[:min(5, len(strings.Split(content, "\n")))], "\n")
-	toolAnalysis := fmt.Sprintf("Simulated static analysis for %s. Found potential areas for optimization.", language)
-	suggestions := []string{
+
+toolAnalysis := fmt.Sprintf("Simulated static analysis for %s. Found potential areas for optimization.", language)
+suggestions := []string{
 		"Consider adding more comments for complex logic.",
 		"Check for unused variables or imports.",
 		"Ensure error handling is robust in all critical paths.",
@@ -457,4 +458,87 @@ func (app *SovereignApp) handleAnalyzeCodeFile(w http.ResponseWriter, r *http.Re
 		"suggestions":   suggestions,
 	}
 	json.NewEncoder(w).Encode(response)
+}
+func (app *SovereignApp) handleProcessTextFile(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	if r.Method != "POST" {
+		http.Error(w, "Only POST method is supported", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var requestBody struct {
+		Filename string `json:"filename"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&requestBody); err != nil {
+		http.Error(w, fmt.Sprintf("Error decoding request: %v", err), http.StatusBadRequest)
+		return
+	}
+
+	filePath := filepath.Join(app.AppDir, "uploads", requestBody.Filename)
+	content, err := os.ReadFile(filePath)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Error reading file: %v", err), http.StatusInternalServerError)
+		return
+	}
+
+	response := map[string]string{"content": string(content)}
+	json.NewEncoder(w).Encode(response)
+}
+func (app *SovereignApp) handleGenerate(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
+func (app *SovereignApp) handleProcessImage(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
+func (app *SovereignApp) handleScoutScan(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
+func (app *SovereignApp) handleVisualScreenshot(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
+func (app *SovereignApp) handleAnalyzeAnomalyFile(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
+func (app *SovereignApp) handleAnalyzeAnomalyText(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
+func (app *SovereignApp) handleAnalyzeVisualSignature(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
+func (app *SovereignApp) handleIntrospectGodMode(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
+func (app *SovereignApp) handleSentinelData(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
+func (app *SovereignApp) handleSentinelScout(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
+func (app *SovereignApp) handleSentinelLogScan(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
+func (app *SovereignApp) handleSentinelScribe(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
+func (app *SovereignApp) handleAutonomyStatus(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
+func (app *SovereignApp) handleSentryStream(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
+func (app *SovereignApp) handleAutonomyConfig(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
+func (app *SovereignApp) handleAPIDatabases(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
+func (app *SovereignApp) handleAPITables(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
+func (app *SovereignApp) handleAPITableData(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
+func (app *SovereignApp) handleAPITrain(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
+func (app *SovereignApp) handleAPICrawl(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
+func (app *SovereignApp) handleAPIStopCrawl(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
+func (app *SovereignApp) handleAPIDeleteRows(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
+func (app *SovereignApp) handleAPICreateDatabase(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
+func (app *SovereignApp) handleAPIDeleteDatabase(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
+func (app *SovereignApp) handleAPICopyDatabase(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
+func (app *SovereignApp) handleAPIMergeDatabases(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
+func (app *SovereignApp) handleAPIArchiveDatabase(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
+func (app *SovereignApp) handleAPIArchiveTable(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
+func (app *SovereignApp) handleAPIArchiveRows(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
+func (app *SovereignApp) handleAPIAIAnalyze(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
+func (app *SovereignApp) handleAPIStatus(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
+func (app *SovereignApp) handleAPICast(w http.ResponseWriter, r *http.Request) { http.Error(w, "Not Implemented", http.StatusNotImplemented) }
+func (app *SovereignApp) handleHealth(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("OK"))
+}
+
+// isUserAttached checks if a user is currently interacting with the system.
+// This is a placeholder implementation.
+func (app *SovereignApp) isUserAttached() bool {
+	// In a real scenario, this would check for active GUI sessions,
+	// SSH connections, or recent API calls from the user interface.
+	// For now, we'll simulate this with a simple heuristic or configuration.
+	return false 
+}
+
+// getSystemContext gathers relevant system information for autonomous operation.
+// This is a placeholder implementation.
+func (app *SovereignApp) getSystemContext() string {
+	// In a real scenario, this would collect data from various sources:
+	// - Running processes
+	// - File system changes
+	// - Network activity
+	// - User interaction history
+	// - Internal state of the Sovereign App
+	return "System context: All systems nominal. Awaiting directives."
 }

@@ -22,9 +22,10 @@
     *   Implemented Go handlers for GUI endpoints:
         *   Served embedded static GUI files. (DONE)
         *   Implemented placeholder API endpoints for the GUI to interact with the Sovereign system. (DONE)
-        *   Implemented `/health`, `/terminal/sys_info`, and `/upload` API endpoints. (DONE)
-        *   Forward user inputs (from GUI chat) to me (the LLM agent). (PENDING - This will be part of implementing the /generate endpoint logic)
-        *   Process my responses (LLM agent) and format them for display in the GUI. (PENDING - This will be part of implementing the /generate endpoint logic)
+        *   Implemented `/health`, `/terminal/sys_info`, `/upload`, `/analyze_code_file`, and `/process_text_file` API endpoints. (DONE)
+        *   Implemented `/generate` API endpoint (placeholder version). (DONE)
+        *   Forward user inputs (from GUI chat) to me (the LLM agent). (TODO)
+        *   Process my responses (LLM agent) and format them for display in the GUI. (TODO)
 7. [completed] Implement "Ghost Mode" & Self-Correction:
     *   Go implementation of autonomous operation logic from `yolo_sovereign.py`.
         *   Ported `is_user_attached()` logic. (DONE)
