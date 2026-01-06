@@ -1,0 +1,76 @@
+:root {
+    /* --- The Void Palette --- */
+    --void-bg: #050505;
+    --panel-bg: #0f0f12;
+    --border-dim: #333;
+    
+    /* --- The Gemini Triad --- */
+    --cortex-cyan: #00f3ff;   /* Logic, Mind */
+    --war-red: #ff2a2a;       /* Aggression, Arsenal */
+    --soul-purple: #9d00ff;   /* Subconscious, Memory */
+    --cleric-gold: #ffd700;   /* Healing, Support */
+    --warlock-green: #00ff41; /* Chaos, Corruption */
+    
+    /* --- Typography --- */
+    --font-mono: 'Courier New', Courier, monospace;
+    --font-header: 'Arial Black', sans-serif;
+    
+    /* --- Global Effects --- */
+    --scanline: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+}
+
+body {
+    background-color: var(--void-bg);
+    color: #e0e0e0;
+    font-family: var(--font-mono);
+    margin: 0;
+    overflow-x: hidden;
+}
+
+/* --- Rune Background Animation --- */
+.rune-bg {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: -1;
+    opacity: 0.03;
+    background-image: linear-gradient(0deg, transparent 20%, #00f3ff 21%, #00f3ff 22%, transparent 23%);
+    background-size: 100% 20px;
+    animation: rune-scan 20s linear infinite;
+}
+
+@keyframes rune-scan {
+    0% { background-position: 0 0; }
+    100% { background-position: 0 100%; }
+}
+
+/* --- Common UI Elements --- */
+.panel {
+    background: var(--panel-bg);
+    border: 1px solid var(--border-dim);
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.5);
+}
+
+.btn {
+    background: transparent;
+    border: 1px solid var(--border-dim);
+    color: var(--cortex-cyan);
+    padding: 10px 20px;
+    cursor: pointer;
+    text-transform: uppercase;
+    font-family: var(--font-header);
+    transition: 0.3s;
+}
+
+.btn:hover {
+    box-shadow: 0 0 15px var(--cortex-cyan);
+    background: rgba(0, 243, 255, 0.1);
+}
+
+/* --- Specific Intent Colors --- */
+.btn-war { color: var(--war-red); border-color: var(--war-red); }
+.btn-war:hover { box-shadow: 0 0 15px var(--war-red); background: rgba(255, 42, 42, 0.1); }
+
+.btn-soul { color: var(--soul-purple); border-color: var(--soul-purple); }
+.btn-soul:hover { box-shadow: 0 0 15px var(--soul-purple); background: rgba(157, 0, 255, 0.1); }

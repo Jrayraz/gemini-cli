@@ -242,8 +242,10 @@ func (app *SovereignApp) Close() error {
 func (app *SovereignApp) Run() {
 	fmt.Println("Sovereign System is up and running.")
 	
-	// Setup HTTP server
-	http.Handle("/web/", http.FileServer(http.FS(embeddedFiles)))
+	// Setup HTTP server to serve embedded web files
+	// The http.StripPrefix ensures that "/web/" is removed from the request path
+	// before http.FileServer looks for the file in the embeddedFiles FS.
+	http.Handle("/web/", http.StripPrefix("/web/", http.FileServer(http.FS(embeddedFiles))))
 	
 	app.setupAPIRoutes() // Call the method to set up API routes
 

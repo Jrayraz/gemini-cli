@@ -1,0 +1,93 @@
+/* --- The Throne Room (Main Dashboard) --- */
+@import url('gemini_base.css');
+
+.throne-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    text-align: center;
+}
+
+.nexus-header {
+    margin-bottom: 50px;
+    animation: fadeDown 1s ease;
+}
+
+.nexus-title {
+    font-size: 4rem;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 10px;
+    margin: 0;
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+}
+
+.nexus-subtitle {
+    color: var(--cortex-cyan);
+    font-size: 1.2rem;
+    letter-spacing: 5px;
+    margin-top: 10px;
+}
+
+.triad-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 40px;
+    width: 80%;
+    max-width: 1200px;
+}
+
+.triad-card {
+    background: rgba(15, 15, 18, 0.8);
+    border: 1px solid var(--border-dim);
+    padding: 40px;
+    transition: all 0.4s ease;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    clip-path: polygon(20px 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%, 0 20px);
+}
+
+.triad-card:hover {
+    transform: translateY(-10px);
+}
+
+/* --- Card Variants --- */
+.card-mind { border-color: var(--cortex-cyan); }
+.card-mind:hover { box-shadow: 0 0 30px rgba(0, 243, 255, 0.2); }
+.card-mind i { color: var(--cortex-cyan); }
+
+.card-body { border-color: var(--war-red); }
+.card-body:hover { box-shadow: 0 0 30px rgba(255, 42, 42, 0.2); }
+.card-body i { color: var(--war-red); }
+
+.card-soul { border-color: var(--soul-purple); }
+.card-soul:hover { box-shadow: 0 0 30px rgba(157, 0, 255, 0.2); }
+.card-soul i { color: var(--soul-purple); }
+
+.card-icon {
+    font-size: 4rem;
+    margin-bottom: 20px;
+    display: block;
+}
+
+.card-title {
+    font-family: var(--font-header);
+    font-size: 1.5rem;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    color: #fff;
+}
+
+.card-desc {
+    font-size: 0.9rem;
+    color: #aaa;
+    line-height: 1.5;
+}
+
+@keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}

@@ -1,0 +1,305 @@
+:root {
+    --void: #050505;
+    --panel: #0f0f12;
+    --border: #333;
+    --sudo-red: #ff2a2a;
+    --oracle-cyan: #00f3ff;
+    --alchemy-gold: #ffd700;
+    --shield-purple: #bd93f9;
+    --void-purple: #9d00ff;
+    --text-main: #e0e0e0;
+    --font-mono: 'Courier New', Courier, monospace;
+    --font-header: 'Arial Black', sans-serif;
+    
+    /* Legacy mappings */
+    --bg-color: var(--void);
+    --panel-bg: var(--panel);
+    --accent: var(--oracle-cyan);
+    --accent-glow: rgba(0, 243, 255, 0.3);
+}
+
+body {
+    background-color: var(--void);
+    color: var(--text-main);
+    font-family: var(--font-mono);
+    margin: 0;
+    overflow: hidden;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    width: 100vw;
+    
+    /* The Sanctum Grid */
+    background-image: 
+        linear-gradient(rgba(0, 243, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 243, 255, 0.03) 1px, transparent 1px);
+    background-size: 30px 30px;
+}
+
+/* --- Rune Lines Effect --- */
+body::before {
+    content: "ᚠ ᛟ ᚦ ᛉ ᚨ ᚢ ᚠ ᛟ ᚦ ᛉ ᚨ ᚢ ᚠ ᛟ ᚦ ᛉ ᚨ ᚢ";
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    font-size: 10px;
+    color: rgba(0, 243, 255, 0.03);
+    white-space: nowrap;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: -1;
+    background-image: linear-gradient(0deg, transparent 20%, rgba(0, 243, 255, 0.02) 21%, rgba(0, 243, 255, 0.02) 22%, transparent 23%);
+    background-size: 100% 20px;
+    animation: rune-scan 20s linear infinite;
+}
+
+@keyframes rune-scan {
+    0% { background-position: 0 0; }
+    100% { background-position: 0 100%; }
+}
+
+/* --- Common Components --- */
+
+/* Scrollbars (Global) */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: #050505; border-left: 1px solid #333; }
+::-webkit-scrollbar-thumb { background: #333; border: 1px solid #000; }
+::-webkit-scrollbar-thumb:hover { background: var(--oracle-cyan); }
+
+/* Ensure all scrollable containers show scrollbars */
+div, pre, .panel, .log-area {
+    scrollbar-color: var(--oracle-cyan) #050505;
+    scrollbar-width: thin;
+}
+
+/* Scout Output Specifics */
+#scout-output {
+    height: 300px; /* Fixed height ~30 lines */
+    overflow-y: auto;
+    overflow-x: auto;
+    background: #000;
+    border: 1px solid var(--border);
+    padding: 10px;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.9em;
+    white-space: pre-wrap; /* Wrap long lines */
+}
+
+/* Scribe Gallery */
+.gallery {
+    height: 300px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* Buttons */
+.btn-main, .invoke-btn {
+    background: var(--sudo-red);
+    color: #000;
+    border: none;
+    padding: 10px 25px;
+    font-family: var(--font-header);
+    font-weight: bold;
+    cursor: pointer;
+    text-transform: uppercase;
+    clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+    transition: all 0.3s;
+}
+.btn-main:hover, .invoke-btn:hover {
+    background: #ff6666;
+    letter-spacing: 1px;
+    box-shadow: 0 0 10px var(--sudo-red);
+}
+
+/* Text Inputs */
+textarea, input[type="text"] {
+    background: #000;
+    border: 1px solid var(--border);
+    color: var(--oracle-cyan);
+    padding: 10px;
+    font-family: var(--font-mono);
+    box-sizing: border-box;
+}
+
+textarea:focus, input[type="text"]:focus {
+    outline: none;
+    border-color: var(--oracle-cyan);
+    box-shadow: 0 0 5px var(--oracle-cyan);
+}
+
+/* Headers */
+h1, h2, h3 {
+    font-family: var(--font-header);
+    text-transform: uppercase;
+}
+
+/* Log/Manifestation Areas */
+.log-area, .manifestation-log, .chat-log {
+    background: #000;
+    border: 2px solid var(--border);
+    padding: 20px;
+    overflow-y: auto;
+    position: relative;
+}
+
+/* Scanline Overlay for Logs */
+.log-area::before, .manifestation-log::before, .chat-log::before {
+    content: " ";
+    display: block;
+    position: absolute;
+    top: 0; left: 0; bottom: 0; right: 0;
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+    z-index: 2;
+    background-size: 100% 2px, 3px 100%;
+    pointer-events: none;
+}
+
+/* --- Manifesting Animation (Processing State) --- */
+.manifesting {
+    color: var(--oracle-cyan);
+    font-weight: bold;
+    display: inline-block;
+    animation: pulse-glow 1.5s infinite alternate;
+}
+
+.manifesting::after {
+    content: " ᚠ";
+    animation: rune-cycle 1s infinite steps(1);
+}
+
+@keyframes pulse-glow {
+    from { text-shadow: 0 0 5px var(--oracle-cyan); opacity: 0.7; }
+    to { text-shadow: 0 0 15px var(--oracle-cyan), 0 0 5px var(--text-main); opacity: 1; }
+}
+
+@keyframes rune-cycle {
+    0% { content: " ᚠ"; }
+    15% { content: " ᚢ"; }
+    30% { content: " ᚦ"; }
+    45% { content: " ᚨ"; }
+    60% { content: " ᚱ"; }
+    75% { content: " ᚲ"; }
+    90% { content: " ᚷ"; }
+}
+
+/* --- Global Portal Banner --- */
+.portal-banner {
+    width: 100%;
+    height: 50px;
+    background: linear-gradient(to bottom, #000, transparent);
+    border-bottom: 1px solid rgba(0, 243, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    box-sizing: border-box;
+}
+
+.portal-trigger {
+    background: none;
+    border: none;
+    color: var(--oracle-cyan);
+    font-family: var(--font-header);
+    font-size: 1.2rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-shadow: 0 0 10px var(--oracle-cyan);
+    transition: 0.3s;
+}
+
+.portal-trigger:hover {
+    transform: scale(1.05);
+    text-shadow: 0 0 20px var(--oracle-cyan);
+}
+
+.portal-menu {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.95);
+    backdrop-filter: blur(10px);
+    display: none; /* Controlled by JS */
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Portal Menu: Nexus Container */
+.portal-nexus-container {
+    margin-bottom: 25px;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
+.portal-nexus-item {
+    width: 220px;
+    border-color: var(--shield-purple) !important;
+    color: var(--shield-purple) !important;
+}
+
+.portal-nexus-item i {
+    color: var(--shield-purple) !important;
+}
+
+.portal-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 220px); /* 2 rows of 3 */
+    gap: 25px;
+    max-width: 800px;
+}
+
+.portal-item {
+    border: 1px solid var(--border);
+    padding: 30px;
+    text-align: center;
+    text-decoration: none;
+    color: var(--text-main);
+    transition: 0.3s;
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.portal-item:hover {
+    border-color: var(--oracle-cyan);
+    box-shadow: 0 0 20px rgba(0, 243, 255, 0.2);
+    background: rgba(0, 243, 255, 0.05);
+    transform: translateY(-5px);
+}
+
+.portal-item i {
+    font-size: 3rem;
+    display: block;
+    margin-bottom: 15px;
+    color: var(--oracle-cyan);
+}
+
+.portal-item span {
+    font-family: var(--font-header);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.close-portal {
+    position: absolute;
+    top: 30px;
+    right: 30px;
+    font-size: 2rem;
+    color: var(--sudo-red);
+    cursor: pointer;
+}

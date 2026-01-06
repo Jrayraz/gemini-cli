@@ -1,0 +1,63 @@
+@import url('gemini_base.css');
+
+:root {
+    --accent: var(--war-red);
+    --glow: rgba(255, 42, 42, 0.4);
+}
+
+body {
+    background-image: 
+        linear-gradient(rgba(255, 42, 42, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 42, 42, 0.05) 1px, transparent 1px);
+    background-size: 20px 20px;
+}
+
+/* Radar Sweep Effect */
+body::after {
+    content: "";
+    position: fixed;
+    top: -50%; left: -50%; width: 200%; height: 200%;
+    background: conic-gradient(from 0deg, transparent, var(--glow), transparent 30%);
+    animation: radar-sweep 10s linear infinite;
+    z-index: -1;
+    pointer-events: none;
+    opacity: 0.2;
+}
+
+@keyframes radar-sweep {
+    to { transform: rotate(360deg); }
+}
+
+.arsenal-header {
+    border-left: 10px solid var(--accent);
+    padding: 20px;
+    background: rgba(15, 15, 18, 0.9);
+    margin-bottom: 30px;
+}
+
+.arsenal-title {
+    font-family: var(--font-header);
+    color: var(--accent);
+    letter-spacing: 5px;
+    margin: 0;
+}
+
+.weapon-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    padding: 20px;
+}
+
+.weapon-card {
+    background: rgba(0, 0, 0, 0.8);
+    border: 1px solid var(--accent);
+    padding: 20px;
+    position: relative;
+    clip-path: polygon(0 0, 100% 0, 100% 70%, 80% 100%, 0 100%);
+}
+
+.weapon-card:hover {
+    background: rgba(255, 42, 42, 0.1);
+    box-shadow: 0 0 20px var(--glow);
+}

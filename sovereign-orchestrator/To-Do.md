@@ -32,8 +32,10 @@
         *   Ported `trigger_save()` logic. (DONE)
         *   Implemented main "Ghost Mode" loop. (DONE)
     *   Integrate robust self-diagnosis and self-correction routines, monitoring system health and executing corrective actions. (Basic placeholder implemented) (DONE)
-8. [pending] Implement Command & GUI Interface Handling:
+8. [in_progress] Implement Command & GUI Interface Handling:
     *   Go-based command parser.
+        *   Defined command structure and implemented basic parser. (DONE)
+    *   Integrate with API Endpoints. (PENDING)
 9. [pending] Integrate STT/TTS.
 10. [pending] Integrate Memory & Context Management.
 11. [pending] Implement `tmux` "Little Dudes" & TTY Management:

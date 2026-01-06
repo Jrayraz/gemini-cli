@@ -1,0 +1,50 @@
+@import url('gemini_base.css');
+
+:root {
+    --accent: var(--cortex-cyan);
+    --glow: rgba(0, 243, 255, 0.4);
+}
+
+body {
+    /* Hex-grid Mind */
+    background-image: 
+        radial-gradient(var(--glow) 1px, transparent 1px);
+    background-size: 40px 40px;
+}
+
+.cortex-header {
+    border-bottom: 1px solid var(--accent);
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.cortex-title {
+    font-family: var(--font-header);
+    color: var(--accent);
+    letter-spacing: 8px;
+    text-shadow: 0 0 15px var(--glow);
+}
+
+.data-stream {
+    height: 400px;
+    background: rgba(0, 0, 0, 0.8);
+    border: 1px solid var(--border-dim);
+    margin: 20px;
+    padding: 15px;
+    overflow-y: auto;
+    font-size: 0.85rem;
+    color: var(--accent);
+}
+
+.rune-logic {
+    position: absolute;
+    font-size: 15rem;
+    color: var(--glow);
+    right: -20px;
+    bottom: -20px;
+    z-index: -1;
+    opacity: 0.1;
+    font-style: normal;
+}
