@@ -10,12 +10,12 @@
 3. [completed] Implement Robust SQLite DB Manager (Go) with Evolution & Migration:
     *   Added schema migration capabilities to `initDB` in `sovereign_app.go`.
     *   Implemented an option/flag for using an existing `sovereign_memory.db`.
-4. [pending] Set up Runtime Extraction:
-    *   Refine `ensureRuntime` in `sovereign_app.go` to handle Python scripts and Node.js CLI extraction to `~/.sovereign/runtime`.
-    *   Ensure correct permissions and executable flags are set.
-5. [pending] Embed critical Python scripts into Go binary. (This will require getting the actual content of the Python files.)
-    *   `memory_daemon.py`
-    *   `yolo_sovereign.py`
+4. [completed] Set up Runtime Extraction:
+    *   Refined `ensureRuntime` in `sovereign_app.go` to handle Python scripts and Node.js CLI extraction to `~/.sovereign/runtime`.
+    *   Ensured correct permissions and executable flags are set.
+5. [in_progress] Embed critical Python scripts into Go binary. (This will require getting the actual content of the Python files.)
+    *   `memory_daemon.py` (DONE)
+    *   `yolo_sovereign.py` (BLOCKED - file not found, awaiting user input)
     *   `sovereign-gguf-core.py`
     *   Voice interface mocks (e.g., `dialect_classifier.py`, etc.)
 6. [pending] Implement LLM Core (Internal - Me) & GUI Endpoints:
